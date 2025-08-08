@@ -17,9 +17,14 @@ Before you begin, make sure you have the following installed:
 - **Node.js 18+**: Download from [nodejs.org](https://nodejs.org/)
 - **pnpm**: Install with `npm install -g pnpm`
 - **Git**: For version control
+- **Docker**: Must be installed and running. [Get Docker](https://docs.docker.com/engine/install/).
 
 {% callout title="Why pnpm?" %}
 Nestled works best with pnpm for package management in monorepos due to its efficient disk space usage and fast installation times.
+{% /callout %}
+
+{% callout title="Just getting started?" %}
+If you haven't created a project yet, follow the [Quick Start guide on our homepage](/).
 {% /callout %}
 
 ---
@@ -49,7 +54,10 @@ Create a complete NestJS API with database integration, authentication, and more
 # Set up configuration
 nx g @nestledjs/config:setup
 nx g @nestledjs/config:init
+```
+> Before running the following commands, make sure Docker is running on your machine.
 
+```shell
 # Generate API
 nx g @nestledjs/api:setup
 nx g @nestledjs/api:app
@@ -60,6 +68,10 @@ nx g @nestledjs/api:custom
 nx g @nestledjs/api:smtp-mailer
 nx g @nestledjs/api:generate-crud
 nx g @nestledjs/api:utils
+nx g @nestledjs/api:custom
+nx g @nestledjs/shared:sdk
+nx g @nestledjs/shared:styles
+nx g @nestledjs/plugins:auth
 nx g @nestledjs/api:workspace-setup
 ```
 
@@ -83,10 +95,7 @@ Once you have your API, generate a modern web frontend that automatically connec
 # Generate web frontend and shared libraries
 nx g @nestledjs/web:setup
 nx g @nestledjs/web:app
-nx g @nestledjs/shared:sdk
-nx g @nestledjs/shared:styles
 nx g @nestledjs/shared:apollo
-nx g @nestledjs/plugins:auth
 ```
 
 This creates a complete frontend application with:

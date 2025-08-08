@@ -27,8 +27,13 @@ Get up and running with Nestled in just a few steps:
 ### Create an Nx workspace
 
 ```shell
-npx create-nx-workspace@latest my-app --preset=none --cli=nx --packageManager=pnpm
-cd my-app
+npx create-nx-workspace@latest my-app --preset=ts --cli=nx --packageManager=pnpm --ci=github --formatter=prettier 
+```
+
+> You will be prompted to push the new workspace to GitHub. You can choose to do so now or skip this step.
+
+```shell
+cd my-app 
 ```
 
 ### Install Nestled packages
@@ -36,15 +41,10 @@ cd my-app
 Choose what you need for your project:
 
 ```shell
-# For full-stack code generation
-npm install @nestledjs/generators
-
-# For form handling (ready to use)
-npm install @nestledjs/forms
-
-# For utility functions
-npm install @nestledjs/helpers
+pnpm install @nestledjs/generators @nestledjs/forms @nestledjs/helpers
 ```
+
+> You may need to run `pnpm approve --builds` to approve any libraries that require building.
 
 {% callout title="Ready to build?" %}
 [Create your first project →](/docs/installation) with step-by-step instructions for generating a complete full-stack application.
