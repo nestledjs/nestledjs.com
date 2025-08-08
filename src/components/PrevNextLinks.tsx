@@ -51,11 +51,11 @@ function PageLink({
 }
 
 export function PrevNextLinks() {
-  let pathname = usePathname()
-  let allLinks = navigation.flatMap((section) => section.links)
-  let linkIndex = allLinks.findIndex((link) => link.href === pathname)
-  let previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
-  let nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
+  const pathname = usePathname()
+  const allLinks = navigation.flatMap((section) => section.links)
+  const linkIndex = allLinks.findIndex((link) => link.href === pathname)
+  const previousPage = linkIndex > -1 ? allLinks[linkIndex - 1] : null
+  const nextPage = linkIndex > -1 ? allLinks[linkIndex + 1] : null
 
   if (!nextPage && !previousPage) {
     return null

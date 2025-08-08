@@ -9,7 +9,7 @@ import { Hero } from '@/components/Hero'
 import { Logo, Logomark } from '@/components/Logo'
 import { MobileNavigation } from '@/components/MobileNavigation'
 import { Navigation } from '@/components/Navigation'
-import { Search } from '@/components/Search'
+// import { Search } from '@/components/Search' // TODO: Uncomment when search is re-enabled
 import { ThemeSelector } from '@/components/ThemeSelector'
 
 function GitHubIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -21,7 +21,7 @@ function GitHubIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 }
 
 function Header() {
-  let [isScrolled, setIsScrolled] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
     function onScroll() {
@@ -67,8 +67,8 @@ function Header() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  let pathname = usePathname()
-  let isHomePage = pathname === '/'
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
 
   return (
     <div className="flex w-full flex-col">

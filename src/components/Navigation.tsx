@@ -11,7 +11,7 @@ export function Navigation({
   className?: string
   onLinkClick?: React.MouseEventHandler<HTMLAnchorElement>
 }) {
-  let pathname = usePathname()
+  const pathname = usePathname()
 
   return (
     <nav className={clsx('text-base lg:text-sm', className)}>

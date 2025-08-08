@@ -15,7 +15,7 @@ export function DocsLayout({
   frontmatter: { title?: string }
   nodes: Array<Node>
 }) {
-  let tableOfContents = collectSections(nodes)
+  const tableOfContents = collectSections(nodes)
 
   return (
     <>
