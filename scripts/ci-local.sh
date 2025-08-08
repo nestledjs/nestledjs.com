@@ -87,7 +87,7 @@ if [[ "$SKIP_SMOKE_TEST" == "false" ]]; then
   sleep 10
   
   # Test homepage
-  if curl -f http://localhost:3000 > /dev/null 2>&1; then
+  if curl -f -s -o /dev/null http://localhost:3000; then
     print_success "Smoke test passed - homepage loads correctly"
   else
     print_error "Smoke test failed - homepage not accessible"

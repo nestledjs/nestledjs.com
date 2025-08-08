@@ -44,7 +44,7 @@
     "ci:security": "echo '🔒 Running Security Checks...' && pnpm audit --audit-level=moderate && pnpm outdated || true",
     "ci:smoke-test": "echo '🚀 Running Smoke Test...' && pnpm run ci:start-and-test",
     "ci:start-and-test": "concurrently --kill-others --success=first \"pnpm start\" \"pnpm run ci:wait-and-curl\"",
-    "ci:wait-and-curl": "sleep 10 && curl -f http://localhost:3000 && echo '✅ Smoke test passed!'"
+    "ci:wait-and-curl": "sleep 10 && curl -f -s -o /dev/null http://localhost:3000 && echo '✅ Smoke test passed!'"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
