@@ -12,3 +12,7 @@ name = "nestledjs-docs"
 
 [services.variables]
 NODE_ENV = "production"
+
+[services.build]
+# Disable automatic cache mounting for TypeScript build info
+watchPatterns = ["/app/src/**/*"]

@@ -1,0 +1,8 @@
+# Railway ignore file
+# Prevent Railway from trying to cache TypeScript build info file
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Other build artifacts that shouldn't be cached as directories
+.next/cache
+node_modules/.cache

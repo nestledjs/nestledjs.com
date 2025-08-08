@@ -1,0 +1,12 @@
+[phases.build]
+cmds = [
+  "pnpm install --frozen-lockfile",
+  "rm -f tsconfig.tsbuildinfo",
+  "pnpm run build"
+]
+
+[phases.start]
+cmd = "pnpm start"
+
+[variables]
+NODE_ENV = "production"
