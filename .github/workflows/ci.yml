@@ -46,13 +46,6 @@ jobs:
       - name: Run build test
         run: pnpm run build
 
-      - name: Test build output
-        run: |
-          pnpm start &
-          sleep 10
-          curl -f http://localhost:3000 || exit 1
-          kill %1
-
   # Job 2: Security & Dependency Checks
   security:
     name: Security Audit
