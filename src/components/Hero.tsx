@@ -64,11 +64,15 @@ export function Hero() {
                 Ship faster than your competitors can plan.
               </p>
               <p className="mt-3 text-2xl tracking-tight text-slate-400">
-                Nestled generates scalable, production-ready full-stack apps from a single schema, saving hundreds of hours.
+                Nestled generates scalable, production-ready full-stack apps
+                from a single schema, saving hundreds of hours.
               </p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
                 <Button href="/docs/installation">Get started</Button>
-                <Button href="https://github.com/nestledjs/nestled" variant="secondary">
+                <Button
+                  href="https://github.com/nestledjs/nestled"
+                  variant="secondary"
+                >
                   View on GitHub
                 </Button>
               </div>

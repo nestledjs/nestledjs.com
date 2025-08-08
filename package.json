@@ -38,7 +38,13 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm run lint && pnpm run type-check && pnpm run build"
+    "test": "pnpm run lint && pnpm run type-check && pnpm run build",
+    "ci:local": "pnpm run ci:quality && pnpm run ci:security",
+    "ci:quality": "echo '🔍 Running Quality Checks...' && pnpm run lint && pnpm run type-check && pnpm run format:check && pnpm run build && pnpm run ci:smoke-test",
+    "ci:security": "echo '🔒 Running Security Checks...' && pnpm audit --audit-level=moderate && pnpm outdated || true",
+    "ci:smoke-test": "echo '🚀 Running Smoke Test...' && pnpm run ci:start-and-test",
+    "ci:start-and-test": "concurrently --kill-others --success=first \"pnpm start\" \"pnpm run ci:wait-and-curl\"",
+    "ci:wait-and-curl": "sleep 10 && curl -f http://localhost:3000 && echo '✅ Smoke test passed!'"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
@@ -68,6 +74,7 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.0.4",
     "prettier": "^3.3.2",

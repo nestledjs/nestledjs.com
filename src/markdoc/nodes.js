@@ -30,7 +30,9 @@ const nodes = {
       const slugify = documentSlugifyMap.get(config)
       const attributes = node.transformAttributes(config)
       const children = node.transformChildren(config)
-      const text = children.filter((child) => typeof child === 'string').join(' ')
+      const text = children
+        .filter((child) => typeof child === 'string')
+        .join(' ')
       const id = attributes.id ?? slugify(text)
 
       return new Tag(

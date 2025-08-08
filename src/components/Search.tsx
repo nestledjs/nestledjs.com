@@ -339,7 +339,7 @@ function SearchDialog({
   })
 
   useEffect(() => {
-    if (open) {
+    if (_open) {
       return
     }
 
@@ -355,7 +355,7 @@ function SearchDialog({
     return () => {
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [open, setOpen])
+  }, [_open, setOpen])
 
   return (
     <>
@@ -363,7 +363,7 @@ function SearchDialog({
         <CloseOnNavigation close={close} autocomplete={autocomplete} />
       </Suspense>
       <Dialog
-        open={open}
+        open={_open}
         onClose={() => close(autocomplete)}
         className={clsx('fixed inset-0 z-50', className)}
       >
@@ -408,22 +408,22 @@ function SearchDialog({
 
 function useSearchProps() {
   const buttonRef = useRef<React.ElementRef<'button'>>(null)
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   return {
     buttonProps: {
       ref: buttonRef,
       onClick() {
-        setOpen(true)
+        setIsOpen(true)
       },
     },
     dialogProps: {
-      open,
+      open: isOpen,
       setOpen: useCallback((open: boolean) => {
         const { width = 0, height = 0 } =
           buttonRef.current?.getBoundingClientRect() ?? {}
         if (!open || (width !== 0 && height !== 0)) {
-          setOpen(open)
+          setIsOpen(open)
         }
       }, []),
     },

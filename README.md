@@ -5,6 +5,7 @@ This is the official documentation website for [Nestled.js](https://github.com/n
 ## About Nestled.js
 
 Nestled generates complete applications from a single schema, including:
+
 - NestJS APIs with TypeORM and authentication
 - React Router 7 web applications
 - Mobile applications
@@ -39,6 +40,7 @@ Contributions to improve the documentation are welcome! Please see the main [Nes
 ## Technologies Used
 
 This documentation site is built with:
+
 - [Next.js](https://nextjs.org) - React framework
 - [Tailwind CSS](https://tailwindcss.com) - CSS framework
 - [Markdoc](https://markdoc.io) - Documentation authoring

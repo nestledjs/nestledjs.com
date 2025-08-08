@@ -64,6 +64,7 @@ nx g @nestledjs/api:workspace-setup
 ```
 
 This generates a fully-featured API with:
+
 - Configuration management
 - NestJS application structure
 - Prisma database integration
@@ -89,6 +90,7 @@ nx g @nestledjs/plugins:auth
 ```
 
 This creates a complete frontend application with:
+
 - Server-side rendered React Router 7 application
 - TypeScript configuration
 - Tailwind CSS for styling

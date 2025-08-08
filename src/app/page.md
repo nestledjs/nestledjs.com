@@ -59,6 +59,7 @@ Nestled provides everything you need to build modern, scalable applications with
 ### Code generation
 
 Generate complete applications, libraries, and components with a single command. All generated code follows industry best practices and includes:
+
 - TypeScript throughout
 - Comprehensive testing setup
 - Linting and formatting rules
@@ -68,6 +69,7 @@ Generate complete applications, libraries, and components with a single command.
 ### Monorepo architecture
 
 Built on Nx, Nestled gives you powerful monorepo capabilities:
+
 - Incremental builds and testing
 - Smart dependency tracking
 - Code sharing between projects
@@ -77,6 +79,7 @@ Built on Nx, Nestled gives you powerful monorepo capabilities:
 ### Full-stack integration
 
 Seamless integration between frontend and backend:
+
 - Automatic type generation
 - Shared validation schemas
 - End-to-end type safety
@@ -90,6 +93,7 @@ Need assistance or want to contribute? Here's how to connect with the Nestled co
 ### Submit an issue
 
 Found a bug or have a feature request? Visit our [GitHub repository](https://github.com/nestledjs/nestled) to:
+
 - Report bugs with detailed reproduction steps
 - Request new features or generators
 - Submit pull requests with improvements
@@ -98,6 +102,7 @@ Found a bug or have a feature request? Visit our [GitHub repository](https://git
 ### Join the community
 
 Connect with other Nestled developers and get help:
+
 - **GitHub Discussions**: Ask questions and share experiences
 - **Documentation**: Comprehensive guides and API reference
 - **Examples**: Real-world applications built with Nestled
