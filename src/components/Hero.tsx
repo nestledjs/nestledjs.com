@@ -1,4 +1,6 @@
-import { Fragment } from 'react'
+'use client'
+
+import { Fragment, useState } from 'react'
 import Image from 'next/image'
 import clsx from 'clsx'
 import { Highlight } from 'prism-react-renderer'
@@ -8,30 +10,45 @@ import { HeroBackground } from '@/components/HeroBackground'
 import blurCyanImage from '@/images/blur-cyan.png'
 import blurIndigoImage from '@/images/blur-indigo.png'
 
-const codeLanguage = 'bash'
-const code = `# Create a new workspace
-npx create-nx-workspace@latest my-app --preset=none
+const terminalCode = `# Clone the template
+git clone https://github.com/nestledjs/nestled_template.git my-app
+cd my-app && cp .env.example .env && pnpm install
 
-# Install Nestled generators
-cd my-app
-npm install @nestledjs/generators
+# Set up your workspace
+nx g @nestledjs/generators:workspace-setup --name my-app
 
-# Generate a complete API
-npx nx g @nestledjs/generators:api-setup
-npx nx g @nestledjs/generators:api-app backend
+# Design your schema, then generate everything
+pnpm db-update
+pnpm prisma db push
 
-# Generate a web app
-npx nx g @nestledjs/generators:web-setup
-npx nx g @nestledjs/generators:web-app frontend
+# Start development
+nx serve api
+nx serve web
+pnpm sdk watch`
 
-# Start everything
-npm run dev:api
-npm run dev:web
-npm run sdk:watch`
+const schemaCode = `// Design your schema — Nestled generates the rest
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id         String        @id @default(uuid())
+  amount     Decimal
+  status     InvoiceStatus @default(DRAFT)
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  customerId String
+  lineItems  LineItem[]
+}
+
+// pnpm db-update → full CRUD API + typed SDK + admin dashboard`
 
 const tabs = [
-  { name: 'terminal', isActive: true },
-  { name: 'package.json', isActive: false },
+  { name: 'terminal', language: 'bash', code: terminalCode },
+  { name: 'schema.prisma', language: 'typescript', code: schemaCode },
 ]
 
 function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -45,6 +62,9 @@ function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 }
 
 export function Hero() {
+  const [activeTab, setActiveTab] = useState(0)
+  const currentTab = tabs[activeTab]
+
   return (
     <div className="overflow-hidden bg-slate-900 dark:mt-[-4.75rem] dark:-mb-32 dark:pt-19 dark:pb-32">
       <div className="py-16 sm:px-2 lg:relative lg:px-0 lg:py-20">
@@ -64,8 +84,8 @@ export function Hero() {
                 Ship faster than your competitors can plan.
               </p>
               <p className="mt-3 text-2xl tracking-tight text-slate-400">
-                Nestled generates scalable, production-ready full-stack apps
-                from a single schema, saving hundreds of hours.
+                Clone a repo. Design your Prisma schema. Run one command.
+                Get a production-ready full-stack app — instantly.
               </p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
                 <Button href="/docs/installation">Get started</Button>
@@ -109,25 +129,26 @@ export function Hero() {
                 <div className="pt-4 pl-4">
                   <TrafficLightsIcon className="h-2.5 w-auto stroke-slate-500/30" />
                   <div className="mt-4 flex space-x-2 text-xs">
-                    {tabs.map((tab) => (
-                      <div
+                    {tabs.map((tab, index) => (
+                      <button
                         key={tab.name}
+                        onClick={() => setActiveTab(index)}
                         className={clsx(
                           'flex h-6 rounded-full',
-                          tab.isActive
+                          index === activeTab
                             ? 'bg-linear-to-r from-sky-400/30 via-sky-400 to-sky-400/30 p-px font-medium text-sky-300'
-                            : 'text-slate-500',
+                            : 'text-slate-500 hover:text-slate-400',
                         )}
                       >
                         <div
                           className={clsx(
                             'flex items-center rounded-full px-2.5',
-                            tab.isActive && 'bg-slate-800',
+                            index === activeTab && 'bg-slate-800',
                           )}
                         >
                           {tab.name}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                   <div className="mt-6 flex items-start px-1 text-sm">
@@ -136,7 +157,7 @@ export function Hero() {
                       className="border-r border-slate-300/5 pr-4 font-mono text-slate-600 select-none"
                     >
                       {Array.from({
-                        length: code.split('\n').length,
+                        length: currentTab.code.split('\n').length,
                       }).map((_, index) => (
                         <Fragment key={index}>
                           {(index + 1).toString().padStart(2, '0')}
@@ -145,8 +166,8 @@ export function Hero() {
                       ))}
                     </div>
                     <Highlight
-                      code={code}
-                      language={codeLanguage}
+                      code={currentTab.code}
+                      language={currentTab.language}
                       theme={{ plain: {}, styles: [] }}
                     >
                       {({

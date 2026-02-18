@@ -28,7 +28,7 @@ Nestled uses pnpm for package management. Its efficient disk usage and strict de
 ## Clone the template
 
 ```shell
-git clone https://github.com/nickvdyck/nestled-starter.git my-app
+git clone https://github.com/nestledjs/nestled_template.git my-app
 cd my-app
 ```
 
@@ -49,7 +49,42 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-For local development, the defaults work out of the box. The key variables you may want to customize:
+For local development, the defaults work out of the box — you just need to install dependencies first:
+
+```shell
+pnpm install
+```
+
+{% callout title="Build approvals" %}
+You may need to run `pnpm approve --builds` to approve libraries that require native compilation (Prisma, SWC, etc.).
+{% /callout %}
+
+---
+
+## Set up your workspace
+
+Run the workspace setup generator to name your project and initialize everything:
+
+```shell
+nx g @nestledjs/generators:workspace-setup --name my-app
+```
+
+This does several things:
+
+1. **Renames the workspace** — finds and replaces `nestled-template` throughout the project with your chosen name. All your imports will use `@my-app/...` going forward.
+2. **Starts Docker services** — spins up PostgreSQL, Redis, and Mailhog
+3. **Runs database migrations** — pushes the Prisma schema to your database
+4. **Seeds the database** — creates an admin user and initial data
+
+{% callout title="Choosing a name" %}
+Use lowercase with dashes for spaces (e.g., `my-app`, `acme-saas`, `todo-pro`). Keep it short — this becomes the `@name/` prefix for every import in your project, so shorter means less typing during development.
+{% /callout %}
+
+---
+
+## Environment variables
+
+The key variables you may want to customize in `.env`:
 
 ### Core settings
 
@@ -100,49 +135,6 @@ For local development, the defaults work out of the box. The key variables you m
 | `STORAGE_PROVIDER` | `local`, `s3`, `cloudinary`, `imagekit`, or `gcs` |
 
 Each provider has its own set of keys (AWS keys for S3, Cloudinary API key/secret, etc.). See `.env.example` for the full list.
-
----
-
-## Start infrastructure
-
-Start PostgreSQL, Redis, and Mailhog with Docker Compose:
-
-```shell
-docker compose -f .dev/docker-compose.yml -p nestled up -d
-```
-
-This gives you:
-
-| Service | Port | Purpose |
-|---|---|---|
-| PostgreSQL | `5432` | Development database |
-| Redis | `6379` | Subscriptions and caching |
-| Mailhog | `1025` (SMTP), `8025` (UI) | Email testing — view sent emails at [localhost:8025](http://localhost:8025) |
-
----
-
-## Install dependencies
-
-```shell
-pnpm install
-```
-
-{% callout title="Build approvals" %}
-You may need to run `pnpm approve --builds` to approve libraries that require native compilation (Prisma, SWC, etc.).
-{% /callout %}
-
----
-
-## Initialize the database
-
-Push the Prisma schema to your database and seed it with initial data:
-
-```shell
-pnpm prisma db push
-pnpm prisma:seed
-```
-
-The seed creates an admin user and initial data so you can start using the app immediately.
 
 ---
 

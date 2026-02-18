@@ -10,6 +10,14 @@ A complete reference for every command available in your Nestled project.
 
 ---
 
+## First-time setup
+
+### `nx g @nestledjs/generators:workspace-setup --name my-app`
+
+Run this once after cloning the template. It renames the workspace from `nestled-template` to your project name, starts Docker services, runs database migrations, and seeds initial data. The `--name` becomes your import namespace (`@my-app/...`), so keep it short, lowercase, with dashes.
+
+---
+
 ## The most important command
 
 ### `pnpm db-update`

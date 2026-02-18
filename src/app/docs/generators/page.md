@@ -195,19 +195,22 @@ Creates a new plugin module at `libs/api/custom/src/lib/plugins/{name}/` with se
 
 **Options**: `--name` (required), `--directory`
 
-### api:workspace-setup
+### generators:workspace-setup
 
 ```shell
-nx g @nestledjs/api:workspace-setup
+nx g @nestledjs/generators:workspace-setup --name my-app
 ```
 
-Post-generation setup that:
+The first command you run after cloning the template. It:
 
-1. Ensures Docker is running
-2. Starts Docker Compose services
-3. Runs Prisma migrations (`pnpm prisma db push`)
-4. Generates GraphQL models (`pnpm generate:models`)
-5. Seeds the database (`pnpm prisma:seed`)
+1. **Renames the workspace** — finds and replaces `nestled-template` with your project name throughout all files (package.json, tsconfig paths, imports, Docker config, etc.)
+2. Ensures Docker is running
+3. Starts Docker Compose services (PostgreSQL, Redis, Mailhog)
+4. Runs Prisma migrations (`pnpm prisma db push`)
+5. Generates GraphQL models (`pnpm generate:models`)
+6. Seeds the database (`pnpm prisma:seed`)
+
+**Options**: `--name` (required) — your project name. Use lowercase with dashes (e.g., `my-app`). This becomes the `@name/` namespace for all imports. Keep it short.
 
 Only runs against localhost databases for safety.
 

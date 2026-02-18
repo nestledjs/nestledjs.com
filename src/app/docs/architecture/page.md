@@ -65,26 +65,29 @@ For example, `libs/api/core/` contains `core/data-access`, `core/feature`, `core
 
 This is the most important concept in Nestled. There are two types of code in your project:
 
-### Generated code (auto-managed)
+### Generated code (overwritten every time)
 
-**`libs/api/generated-crud/`** — Completely regenerated every time you run `pnpm db-update`. Never edit files here. They contain:
+These files are completely regenerated every time you run `pnpm db-update`. Never edit them — your changes will be lost.
 
-- A CRUD resolver for every Prisma model (findOne, findMany, create, update, delete, count)
-- Input/output DTOs
-- Auth guards based on `@crudAuth` Prisma comments
-- Database model metadata
+**`libs/api/generated-crud/`** — CRUD resolvers for every Prisma model (findOne, findMany, create, update, delete, count), input/output DTOs, auth guards based on `@crudAuth` comments, and database model metadata. This drives the admin tool's data management.
 
-**`libs/shared/sdk/src/generated/`** — Auto-generated TypeScript types for all GraphQL operations.
+**`libs/shared/sdk/src/__admin/`** — Admin GraphQL fragments, queries, and mutations for every model. Always overwritten to stay in exact sync with your schema. These power the built-in admin dashboard.
+
+**`libs/shared/sdk/src/generated/`** — Auto-generated TypeScript types for all GraphQL operations (both admin and user-facing).
 
 **`libs/api/core/models/`** — TypeScript models generated from the Prisma DMMF.
 
-### Custom code (hand-maintained)
+### Custom code (yours, never overwritten)
 
-**`libs/api/custom/`** has two areas:
+These files are generated once as empty templates and then **never touched again** by the generators. This is where you build your application.
 
-**`custom/src/lib/default/`** — One module per Prisma model, each with a service, resolver, and module file. These are created once by `pnpm db-update` but **never overwritten**. This is where you add model-specific business logic that goes beyond basic CRUD.
+### `libs/api/custom/` — your API logic
 
-**`custom/src/lib/plugins/`** — Feature modules that are fully hand-maintained. The template includes:
+The custom library has three folders, each with a distinct purpose:
+
+**`custom/src/lib/default/`** — One module per Prisma model, organized by model name. Each contains a service, resolver, and module file. If your schema has an `Invoice` model, all API logic directly related to invoices goes in `default/invoice/`. On first generation, these extend the admin CRUD so the admin tool works immediately. Your job is to write your own user-facing resolvers and business logic here. Everything your end users interact with — including logged-in admin users using the actual app (as opposed to the admin tool) — should be custom-written in these modules.
+
+**`custom/src/lib/plugins/`** — Feature modules for cross-cutting concerns that span multiple models or handle complex features. Auth touches users, sessions, tokens, and emails — so it's a plugin, not a default module. The template includes:
 
 | Plugin | Purpose |
 |---|---|
@@ -97,8 +100,31 @@ This is the most important concept in Nestled. There are two types of code in yo
 | `contact-mailer/` | Email sending with templates |
 | `tenancy/` | Organization context middleware |
 
+**`custom/src/lib/middleware/`** — NestJS middleware like the tenancy middleware that sets organization context on every request.
+
+### `libs/api/integrations/` — external service providers
+
+A separate library for third-party API integrations. Each integration is a NestJS provider that wraps an external service:
+
+| Integration | Purpose |
+|---|---|
+| `email/` | SMTP email sending (SendGrid, AWS SES, Mailtrap, etc.) with mock mode for testing |
+| `sms/` | Twilio SMS for 2FA delivery |
+| `storage/` | File storage providers (S3, Cloudinary, ImageKit, GCS, local) |
+| `stripe/` | Stripe API client, webhook handling, product/price syncing |
+
+When you need to integrate with a new external API (HubSpot, a CRM, a payment processor, etc.), create a new provider in this library.
+
+### `libs/shared/sdk/src/graphql/` — your frontend queries
+
+User-facing GraphQL fragments, queries, and mutations. Generated once as empty templates for each model. You write your own queries here for your frontend — don't rely on the admin operations for production user-facing features.
+
 {% callout title="The golden rule" %}
-Never edit generated code. Put your business logic in `custom/src/lib/default/` (per-model customizations) or `custom/src/lib/plugins/` (feature modules). Generated code gets overwritten; custom code never does.
+Never edit generated code — it gets overwritten. All your business logic goes in `custom/` (API) and `sdk/src/graphql/` (frontend). These are only ever additive: when you add a new model, the generators create new empty templates but never touch your existing files. If you delete a model from your schema, you need to manually remove its custom and SDK folders.
+{% /callout %}
+
+{% callout title="Think about your schema first" %}
+Because custom code is never overwritten, the more thought you put into your Prisma schema upfront, the less cleanup you'll need later. Adding models is effortless — the generators create everything for you. Removing models means manually deleting the custom API module and SDK folder for that model.
 {% /callout %}
 
 ---
@@ -141,18 +167,16 @@ Auth levels:
 
 ### Step 3: Generate the GraphQL SDK
 
-`nx g @nestledjs/shared:sdk` reads your Prisma schema and generates GraphQL operation documents for every model:
+`nx g @nestledjs/shared:sdk` generates two sets of GraphQL operations:
 
-- **Fragments** with all scalar fields (no relations)
-- **Queries** for reading one, reading many, and counting
-- **Mutations** for creating, updating, and deleting
-- **Admin fragments** with nested relation IDs and count fields
+- **Admin SDK** (`sdk/src/__admin/`) — Overwritten every time. Complete fragments, queries, and mutations for every model with nested relation IDs and count fields. Powers the admin dashboard.
+- **User SDK** (`sdk/src/graphql/`) — Generated once as empty templates. Created for new models only, never overwrites existing files. This is where you write your own frontend queries.
 
-These `.graphql` files are then processed by GraphQL Code Generator to produce `libs/shared/sdk/src/generated/graphql.ts` — fully typed TypeScript operations ready to use with Apollo Client.
+Both sets are processed by GraphQL Code Generator to produce `libs/shared/sdk/src/generated/graphql.ts` — fully typed TypeScript operations for Apollo Client.
 
-### Step 4: Generate custom modules
+### Step 4: Generate custom API modules
 
-`nx g @nestledjs/api:custom` creates a custom module (service + resolver + NestJS module) for any Prisma model that doesn't already have one. Existing custom modules are never overwritten.
+`nx g @nestledjs/api:custom` creates a custom module (service + resolver + NestJS module) for any Prisma model that doesn't already have one. Existing modules are never overwritten — this step is purely additive.
 
 ---
 

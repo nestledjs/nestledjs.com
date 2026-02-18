@@ -24,22 +24,22 @@ Nestled is a template starter kit for building production-ready full-stack appli
 
 Get a fully working application in five minutes.
 
-### Clone the template and install
+### Clone the template and set up
 
 ```shell
-git clone https://github.com/nickvdyck/nestled-starter.git my-app
+git clone https://github.com/nestledjs/nestled_template.git my-app
 cd my-app
 cp .env.example .env
 pnpm install
 ```
 
-### Start your infrastructure
+### Name your project and start infrastructure
 
 ```shell
-docker compose -f .dev/docker-compose.yml -p nestled up -d
+nx g @nestledjs/generators:workspace-setup --name my-app
 ```
 
-This starts PostgreSQL, Redis, and Mailhog for local email testing.
+This single command renames the workspace throughout the project, spins up Docker (PostgreSQL, Redis, Mailhog), runs database migrations, and seeds your database. The `--name` becomes your workspace namespace — all your imports will use `@my-app/...`, so keep it short, lowercase, with dashes for spaces.
 
 ### Design your schema
 
@@ -50,7 +50,6 @@ Open `libs/api/prisma/src/lib/schemas/schema.prisma` and define your data models
 ```shell
 pnpm db-update
 pnpm prisma db push
-pnpm prisma:seed
 ```
 
 `pnpm db-update` is the single most important command in Nestled. It reads your Prisma schema and regenerates your entire API — CRUD resolvers, GraphQL types, TypeScript models, and a frontend SDK with typed queries and mutations. Every time you change your schema, run this command and everything updates automatically.
@@ -65,7 +64,7 @@ nx serve web       # Web app on http://localhost:4200
 pnpm sdk watch     # Auto-regenerate types on changes
 ```
 
-Visit `http://localhost:4200` — you have a working application with login, registration, organization management, and an admin dashboard.
+Visit `http://localhost:4200` and register your first account — the first user to register automatically becomes the super admin with full access to the admin dashboard and all management features.
 
 {% callout title="What just happened?" %}
 With one command, `pnpm db-update` ran four steps: generated CRUD resolvers for every model, built GraphQL types from your schema, created custom module boilerplate, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
@@ -75,7 +74,7 @@ With one command, `pnpm db-update` ran four steps: generated CRUD resolvers for 
 
 ## What you get out of the box
 
-Nestled isn't a toy starter — it's a production foundation. Here's what's included and working from day one:
+Nestled is a proven foundation used in live production applications serving hundreds of thousands of users. Here's what's included and working from day one:
 
 ### Authentication
 
