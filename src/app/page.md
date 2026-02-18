@@ -2,110 +2,121 @@
 title: Getting started
 ---
 
-Learn how to get Nestled set up in your project and generate a full-stack application in under thirty minutes. {% .lead %}
+Clone a repo. Design your Prisma schema. Run one command. You have a production-ready full-stack app with authentication, organizations, teams, roles, permissions, billing, an admin dashboard, and a fully generated GraphQL API — instantly. {% .lead %}
 
 {% quick-links %}
 
-{% quick-link title="Installation" icon="installation" href="/docs/installation" description="Step-by-step guides to setting up Nestled and installing the generators." /%}
+{% quick-link title="Installation" icon="installation" href="/docs/installation" description="Step-by-step guide to cloning the template, configuring your environment, and starting development." /%}
 
-{% quick-link title="Architecture guide" icon="presets" href="/docs/architecture-guide" description="Learn how Nestled generates scalable applications and how the internals work." /%}
+{% quick-link title="Architecture" icon="presets" href="/docs/architecture" description="Understand how Nestled structures your app — monorepo layout, code generation, auth, and multi-tenancy." /%}
 
-{% quick-link title="Generators" icon="plugins" href="/docs/writing-plugins" description="Explore the available generators and learn to write your own." /%}
+{% quick-link title="Generators" icon="plugins" href="/docs/generators" description="Reference for every Nestled generator and what it creates under the hood." /%}
 
-{% quick-link title="Forms" icon="theming" href="/" description="Nestled's standalone forms library for building type-safe, validated forms with ease." /%}
+{% quick-link title="Forms" icon="theming" href="https://nestledforms.com" description="Nestled's standalone forms library for building type-safe, validated forms with ease." /%}
 
 {% /quick-links %}
 
-Nestled is a powerful collection of Nx generators that helps you build scalable, production-ready full-stack applications from a single schema. Built on top of the Nx monorepo toolkit, Nestled generates everything you need for modern web development including APIs, web apps, mobile apps, and shared libraries.
+Nestled is a template starter kit for building production-ready full-stack applications. It gives you a complete Nx monorepo with a NestJS GraphQL API, a React frontend with React Router 7, Prisma for your database, Stripe for billing, and a full authentication system — all wired together and ready to go. The more time you spend designing your Prisma schema, the less code you'll ever need to write.
 
 ---
 
 ## Quick start
 
-Get up and running with Nestled in just a few steps:
+Get a fully working application in five minutes.
 
-### Create an Nx workspace
-
-```shell
-npx create-nx-workspace@latest my-app --preset=ts --cli=nx --packageManager=pnpm --ci=github --formatter=prettier 
-```
-
-> You will be prompted to push the new workspace to GitHub. You can choose to do so now or skip this step.
+### Clone the template and install
 
 ```shell
-cd my-app 
+git clone https://github.com/nickvdyck/nestled-starter.git my-app
+cd my-app
+cp .env.example .env
+pnpm install
 ```
 
-### Install Nestled packages
-
-Choose what you need for your project:
+### Start your infrastructure
 
 ```shell
-pnpm install @nestledjs/generators @nestledjs/forms @nestledjs/helpers
+docker compose -f .dev/docker-compose.yml -p nestled up -d
 ```
 
-> You may need to run `pnpm approve --builds` to approve any libraries that require building.
+This starts PostgreSQL, Redis, and Mailhog for local email testing.
 
-{% callout title="Ready to build?" %}
-[Create your first project →](/docs/installation) with step-by-step instructions for generating a complete full-stack application.
+### Design your schema
+
+Open `libs/api/prisma/src/lib/schemas/schema.prisma` and define your data models. The template comes with a comprehensive schema including users, organizations, teams, roles, permissions, and billing — but you can modify it to fit your needs.
+
+### Generate everything
+
+```shell
+pnpm db-update
+pnpm prisma db push
+pnpm prisma:seed
+```
+
+`pnpm db-update` is the single most important command in Nestled. It reads your Prisma schema and regenerates your entire API — CRUD resolvers, GraphQL types, TypeScript models, and a frontend SDK with typed queries and mutations. Every time you change your schema, run this command and everything updates automatically.
+
+### Start development
+
+Run these in separate terminals:
+
+```shell
+nx serve api       # API on http://localhost:3000
+nx serve web       # Web app on http://localhost:4200
+pnpm sdk watch     # Auto-regenerate types on changes
+```
+
+Visit `http://localhost:4200` — you have a working application with login, registration, organization management, and an admin dashboard.
+
+{% callout title="What just happened?" %}
+With one command, `pnpm db-update` ran four steps: generated CRUD resolvers for every model, built GraphQL types from your schema, created custom module boilerplate, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
 {% /callout %}
 
 ---
 
-## Key features
+## What you get out of the box
 
-Nestled provides everything you need to build modern, scalable applications with best practices built-in.
+Nestled isn't a toy starter — it's a production foundation. Here's what's included and working from day one:
 
-### Code generation
+### Authentication
 
-Generate complete applications, libraries, and components with a single command. All generated code follows industry best practices and includes:
+Complete auth system with registration, login, password reset, and email verification. JWT tokens with session tracking, cookie-based persistence, and admin emulation for debugging user issues. OAuth (Google, GitHub) and two-factor authentication infrastructure included.
 
-- TypeScript throughout
-- Comprehensive testing setup
-- Linting and formatting rules
-- Docker configurations
-- CI/CD workflows
+### Organizations, teams, and members
 
-### Monorepo architecture
+Multi-tenant architecture where users belong to organizations through memberships. Organizations have teams, and a tenancy middleware automatically scopes all queries to the active organization. Invite system for adding members with role assignment.
 
-Built on Nx, Nestled gives you powerful monorepo capabilities:
+### Role-based access control
 
-- Incremental builds and testing
-- Smart dependency tracking
-- Code sharing between projects
-- Workspace-wide refactoring
-- Distributed task execution
+Roles and permissions model with guard-based authorization. Generated CRUD endpoints use `@crudAuth` comments in your Prisma schema to declaratively set access levels — no manual guard wiring needed.
 
-### Full-stack integration
+### Stripe billing
 
-Seamless integration between frontend and backend:
+Full Stripe integration with subscription management, webhook handling, product and price syncing, and a checkout flow. Test mode works out of the box with Stripe CLI.
 
-- Automatic type generation
-- Shared validation schemas
-- End-to-end type safety
-- Consistent authentication
-- Real-time updates
+### Generated GraphQL API
+
+Every model in your Prisma schema gets a complete CRUD API — queries for reading one, reading many with pagination, and counting records, plus mutations for creating, updating, and deleting. All with appropriate auth guards applied automatically.
+
+### Admin dashboard
+
+Built-in admin area for managing users, organizations, and data. Every model gets admin CRUD in the web frontend through the generated SDK.
+
+### Code generation pipeline
+
+The `pnpm db-update` command regenerates your entire stack from your Prisma schema — API resolvers, GraphQL types, TypeScript models, and a fully-typed frontend SDK. Change your schema, run one command, everything stays in sync.
+
+### Production infrastructure
+
+Docker configuration, GitHub Actions CI/CD, E2E testing with Vitest, email testing with Mailhog, multi-provider file storage (S3, Cloudinary, ImageKit, GCS), and deployment-ready Docker builds.
+
+---
 
 ## Getting help
 
-Need assistance or want to contribute? Here's how to connect with the Nestled community.
-
 ### Submit an issue
 
-Found a bug or have a feature request? Visit our [GitHub repository](https://github.com/nestledjs/nestled) to:
-
-- Report bugs with detailed reproduction steps
-- Request new features or generators
-- Submit pull requests with improvements
-- Browse existing issues and discussions
+Found a bug or have a feature request? Visit our [GitHub repository](https://github.com/nestledjs/nestled) to report bugs, request features, or submit pull requests.
 
 ### Join the community
 
-Connect with other Nestled developers and get help:
-
-- **GitHub Discussions**: Ask questions and share experiences
-- **Documentation**: Comprehensive guides and API reference
-- **Examples**: Real-world applications built with Nestled
-- **Blog**: Latest updates and best practices
-
-The Nestled project is open source and welcomes contributions from developers of all skill levels.
+Connect with other Nestled developers through GitHub Discussions, browse real-world examples, and stay up to date with the latest releases.

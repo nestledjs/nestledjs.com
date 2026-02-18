@@ -1,12 +1,12 @@
 ---
-title: Create a project
+title: Installation
 nextjs:
   metadata:
-    title: Create a project
-    description: Learn how to create a complete full-stack application with Nestled generators.
+    title: Installation
+    description: Clone the Nestled template, configure your environment, and start building your full-stack application.
 ---
 
-Create a complete full-stack application with Nestled in minutes. This guide walks you through setting up a new workspace and generating all the necessary components for a modern web application.
+This guide walks you through every step from a blank machine to a running Nestled application.
 
 ---
 
@@ -14,132 +14,169 @@ Create a complete full-stack application with Nestled in minutes. This guide wal
 
 Before you begin, make sure you have the following installed:
 
-- **Node.js 18+**: Download from [nodejs.org](https://nodejs.org/)
-- **pnpm**: Install with `npm install -g pnpm`
-- **Git**: For version control
-- **Docker**: Must be installed and running. [Get Docker](https://docs.docker.com/engine/install/).
+- **Node.js 20+** — Download from [nodejs.org](https://nodejs.org/). The template uses Node 22.
+- **pnpm** — Install with `npm install -g pnpm`
+- **Git** — For cloning the template
+- **Docker** — Required for PostgreSQL, Redis, and Mailhog. [Get Docker](https://docs.docker.com/engine/install/).
 
 {% callout title="Why pnpm?" %}
-Nestled works best with pnpm for package management in monorepos due to its efficient disk space usage and fast installation times.
-{% /callout %}
-
-{% callout title="Just getting started?" %}
-If you haven't created a project yet, follow the [Quick Start guide on our homepage](/).
+Nestled uses pnpm for package management. Its efficient disk usage and strict dependency resolution make it ideal for monorepos with many packages.
 {% /callout %}
 
 ---
 
-## Create a new workspace
-
-Start by creating a new Nx workspace that will house your full-stack application:
+## Clone the template
 
 ```shell
-npx create-nx-workspace@latest my-app --preset=none --cli=nx --packageManager=pnpm
+git clone https://github.com/nickvdyck/nestled-starter.git my-app
 cd my-app
 ```
 
-Next, install the Nestled generators:
+Remove the existing git history and start fresh:
 
 ```shell
-npm install @nestledjs/generators
+rm -rf .git
+git init
 ```
 
 ---
 
-## Generate your API
+## Configure your environment
 
-Create a complete NestJS API with database integration, authentication, and more by running these generators in order:
-
-```shell
-# Set up configuration
-nx g @nestledjs/config:setup
-nx g @nestledjs/config:init
-```
-> Before running the following commands, make sure Docker is running on your machine.
+Copy the example environment file:
 
 ```shell
-# Generate API
-nx g @nestledjs/api:setup
-nx g @nestledjs/api:app
-nx g @nestledjs/api:prisma
-nx g @nestledjs/api:config
-nx g @nestledjs/api:core
-nx g @nestledjs/api:custom
-nx g @nestledjs/api:smtp-mailer
-nx g @nestledjs/api:generate-crud
-nx g @nestledjs/api:utils
-nx g @nestledjs/api:custom
-nx g @nestledjs/shared:sdk
-nx g @nestledjs/shared:styles
-nx g @nestledjs/plugins:auth
-nx g @nestledjs/api:workspace-setup
+cp .env.example .env
 ```
 
-This generates a fully-featured API with:
+For local development, the defaults work out of the box. The key variables you may want to customize:
 
-- Configuration management
-- NestJS application structure
-- Prisma database integration
-- Authentication and authorization
-- CRUD operations
-- Email services
-- Custom utilities
+### Core settings
+
+| Variable | Default | Description |
+|---|---|---|
+| `APP_NAME` | `your-app-name` | Application name, used in emails and 2FA |
+| `PORT` | `3000` | API server port |
+| `JWT_SECRET` | `JWT_SECRET` | **Change this** — secret for signing auth tokens |
+| `API_URL` | `http://localhost:3000` | API base URL |
+| `SITE_URL` | `http://localhost:4200` | Frontend base URL |
+
+### Database
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://prisma:prisma@localhost:5432/prisma` | PostgreSQL connection string |
+
+### Email
+
+| Variable | Default | Description |
+|---|---|---|
+| `EMAIL_PROVIDER` | Not set (uses SMTP) | Set to `mock` to skip real emails in CI/testing |
+| `SMTP_HOST` | `localhost` | SMTP server host (Mailhog in local dev) |
+| `SMTP_PORT` | `1025` | SMTP server port |
+
+### Stripe billing (optional)
+
+| Variable | Description |
+|---|---|
+| `STRIPE_SECRET_KEY` | Your Stripe secret key (`sk_test_...`) |
+| `STRIPE_PUBLISHABLE_KEY` | Your Stripe publishable key (`pk_test_...`) |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret (`whsec_...`) |
+| `STRIPE_CURRENCY` | Currency code (default: `usd`) |
+
+### OAuth providers (optional)
+
+| Variable | Description |
+|---|---|
+| `GOOGLE_OAUTH_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth client secret |
+| `GITHUB_OAUTH_CLIENT_ID` | GitHub OAuth client ID |
+| `GITHUB_OAUTH_CLIENT_SECRET` | GitHub OAuth client secret |
+
+### File storage (optional)
+
+| Variable | Description |
+|---|---|
+| `STORAGE_PROVIDER` | `local`, `s3`, `cloudinary`, `imagekit`, or `gcs` |
+
+Each provider has its own set of keys (AWS keys for S3, Cloudinary API key/secret, etc.). See `.env.example` for the full list.
 
 ---
 
-## Generate your web application
+## Start infrastructure
 
-Once you have your API, generate a modern web frontend that automatically connects to your backend:
+Start PostgreSQL, Redis, and Mailhog with Docker Compose:
 
 ```shell
-# Generate web frontend and shared libraries
-nx g @nestledjs/web:setup
-nx g @nestledjs/web:app
-nx g @nestledjs/shared:apollo
+docker compose -f .dev/docker-compose.yml -p nestled up -d
 ```
 
-This creates a complete frontend application with:
+This gives you:
 
-- Server-side rendered React Router 7 application
-- TypeScript configuration
-- Tailwind CSS for styling
-- Apollo Client for GraphQL
-- Automatic type generation from your API
-- Authentication components
-- Shared libraries and utilities
+| Service | Port | Purpose |
+|---|---|---|
+| PostgreSQL | `5432` | Development database |
+| Redis | `6379` | Subscriptions and caching |
+| Mailhog | `1025` (SMTP), `8025` (UI) | Email testing — view sent emails at [localhost:8025](http://localhost:8025) |
+
+---
+
+## Install dependencies
+
+```shell
+pnpm install
+```
+
+{% callout title="Build approvals" %}
+You may need to run `pnpm approve --builds` to approve libraries that require native compilation (Prisma, SWC, etc.).
+{% /callout %}
+
+---
+
+## Initialize the database
+
+Push the Prisma schema to your database and seed it with initial data:
+
+```shell
+pnpm prisma db push
+pnpm prisma:seed
+```
+
+The seed creates an admin user and initial data so you can start using the app immediately.
 
 ---
 
 ## Start development
 
-Start your full development environment with these three commands:
+Run these three commands in separate terminals:
 
 ```shell
-# Start the API server
-npm run dev:api
+# Terminal 1 — API server
+nx serve api
 
-# Start the web application
-npm run dev:web
+# Terminal 2 — Web application
+nx serve web
 
-# Watch SDK for real-time type generation
-npm run sdk:watch
+# Terminal 3 — SDK type generation (watches for changes)
+pnpm sdk watch
 ```
 
-Your API will be running on `http://localhost:3333` and your web app on `http://localhost:4200`, with hot reloading enabled for both. The SDK watcher will automatically generate types as you make changes to your API.
+### Verify everything works
 
-{% callout title="Pro tip!" %}
-Use `npx nx graph` to visualize your generated workspace structure and see how all the pieces fit together.
-{% /callout %}
+- **Web app**: [http://localhost:4200](http://localhost:4200) — you should see the login page
+- **GraphQL playground**: [http://localhost:3000/graphql](http://localhost:3000/graphql)
+- **Mailhog**: [http://localhost:8025](http://localhost:8025) — emails sent during registration/password reset appear here
+- **Prisma Studio**: Run `pnpm prisma:studio` to browse your database visually
 
 ---
 
-## Next steps
+## Your first schema change
 
-Now that you have a complete full-stack application, you can:
+The real power of Nestled is the code generation pipeline. Try adding a model to your schema:
 
-- **Customize your schema**: Modify the Prisma schema to fit your data model
-- **Add more pages**: Generate additional routes and components
-- **Configure authentication**: Set up your preferred auth provider
-- **Deploy**: Use the generated Docker files and CI/CD workflows
+1. Edit `libs/api/prisma/src/lib/schemas/schema.prisma`
+2. Run `pnpm db-update` — regenerates your entire API, types, and SDK
+3. Run `pnpm prisma db push` — applies schema changes to the database
+4. Your API now has full CRUD for the new model, and your frontend has typed queries ready to use
 
-Check out our other guides to learn more about working with your generated application.
+See the [Commands reference](/docs/commands) for details on every available script, or read about the [Architecture](/docs/architecture) to understand how all the pieces fit together.
