@@ -84,8 +84,8 @@ export function Hero() {
                 Ship faster than your competitors can plan.
               </p>
               <p className="mt-3 text-2xl tracking-tight text-slate-400">
-                Clone a repo. Design your Prisma schema. Run one command.
-                Get a production-ready full-stack app — instantly.
+                Clone a repo. Design your Prisma schema. Run one command. Get a
+                production-ready full-stack app — instantly.
               </p>
               <div className="mt-8 flex gap-4 md:justify-center lg:justify-start">
                 <Button href="/docs/installation">Get started</Button>

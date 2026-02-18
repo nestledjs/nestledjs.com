@@ -122,6 +122,7 @@ nx g @nestledjs/api:generate-crud
 - **Feature module** at `libs/api/generated-crud/feature/` — one resolver per model with full CRUD operations
 
 For each model, generates:
+
 - `{model}` query (read one)
 - `{models}` query (read many with pagination)
 - `{models}Count` query

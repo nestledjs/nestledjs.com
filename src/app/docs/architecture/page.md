@@ -89,16 +89,16 @@ The custom library has three folders, each with a distinct purpose:
 
 **`custom/src/lib/plugins/`** — Feature modules for cross-cutting concerns that span multiple models or handle complex features. Auth touches users, sessions, tokens, and emails — so it's a plugin, not a default module. The template includes:
 
-| Plugin | Purpose |
-|---|---|
-| `auth/` | Authentication — register, login, password reset, email verification, JWT, OAuth, 2FA |
-| `admin/` | Admin operations — user emulation, management queries |
-| `billing/` | Stripe subscriptions, checkout, webhook handling |
-| `security/` | Security event tracking, audit logging |
-| `storage/` | Multi-provider file uploads (S3, Cloudinary, ImageKit, GCS, local) |
-| `api-tokens/` | Bearer token authentication |
-| `contact-mailer/` | Email sending with templates |
-| `tenancy/` | Organization context middleware |
+| Plugin            | Purpose                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| `auth/`           | Authentication — register, login, password reset, email verification, JWT, OAuth, 2FA |
+| `admin/`          | Admin operations — user emulation, management queries                                 |
+| `billing/`        | Stripe subscriptions, checkout, webhook handling                                      |
+| `security/`       | Security event tracking, audit logging                                                |
+| `storage/`        | Multi-provider file uploads (S3, Cloudinary, ImageKit, GCS, local)                    |
+| `api-tokens/`     | Bearer token authentication                                                           |
+| `contact-mailer/` | Email sending with templates                                                          |
+| `tenancy/`        | Organization context middleware                                                       |
 
 **`custom/src/lib/middleware/`** — NestJS middleware like the tenancy middleware that sets organization context on every request.
 
@@ -106,12 +106,12 @@ The custom library has three folders, each with a distinct purpose:
 
 A separate library for third-party API integrations. Each integration is a NestJS provider that wraps an external service:
 
-| Integration | Purpose |
-|---|---|
-| `email/` | SMTP email sending (SendGrid, AWS SES, Mailtrap, etc.) with mock mode for testing |
-| `sms/` | Twilio SMS for 2FA delivery |
-| `storage/` | File storage providers (S3, Cloudinary, ImageKit, GCS, local) |
-| `stripe/` | Stripe API client, webhook handling, product/price syncing |
+| Integration | Purpose                                                                           |
+| ----------- | --------------------------------------------------------------------------------- |
+| `email/`    | SMTP email sending (SendGrid, AWS SES, Mailtrap, etc.) with mock mode for testing |
+| `sms/`      | Twilio SMS for 2FA delivery                                                       |
+| `storage/`  | File storage providers (S3, Cloudinary, ImageKit, GCS, local)                     |
+| `stripe/`   | Stripe API client, webhook handling, product/price syncing                        |
 
 When you need to integrate with a new external API (HubSpot, a CRM, a payment processor, etc.), create a new provider in this library.
 
@@ -158,6 +158,7 @@ model UserPreference {
 ```
 
 Auth levels:
+
 - **`"admin"`** (default) — Requires `GqlAuthAdminGuard` (super admin only)
 - **`"user"`** — Requires `GqlAuthGuard` (any authenticated user)
 
@@ -345,13 +346,13 @@ Multi-provider email with templates:
 
 Multi-provider file uploads:
 
-| Provider | Config |
-|---|---|
-| Local | Files stored in `./uploads` directory |
-| S3 | AWS S3 or S3-compatible storage |
-| Cloudinary | Image transformation service |
-| ImageKit | Image optimization CDN |
-| GCS | Google Cloud Storage |
+| Provider   | Config                                |
+| ---------- | ------------------------------------- |
+| Local      | Files stored in `./uploads` directory |
+| S3         | AWS S3 or S3-compatible storage       |
+| Cloudinary | Image transformation service          |
+| ImageKit   | Image optimization CDN                |
+| GCS        | Google Cloud Storage                  |
 
 Set `STORAGE_PROVIDER` in your `.env` and configure the provider-specific keys.
 
@@ -363,22 +364,22 @@ Twilio integration for SMS-based two-factor authentication.
 
 ## Tech stack
 
-| Layer | Technology | Version |
-|---|---|---|
-| Monorepo | Nx | 22.5 |
-| API framework | NestJS | 11.x |
-| API protocol | GraphQL (Apollo Server) | 5.x |
-| Database ORM | Prisma | 7.x |
-| Database | PostgreSQL | 15 |
-| Frontend | React | 19 |
-| Routing | React Router | 7.x |
-| GraphQL client | Apollo Client | 4.x |
-| Styling | Tailwind CSS | 4.x |
-| Build (API) | Webpack | 5.x |
-| Build (Web) | Vite | 7.x |
-| Testing | Vitest | 4.x |
-| Auth | Passport JWT | — |
-| Billing | Stripe | 19.x |
-| Email | Nodemailer | 7.x |
-| Caching | Redis (ioredis) | — |
-| Component library | Storybook | 10.x |
+| Layer             | Technology              | Version |
+| ----------------- | ----------------------- | ------- |
+| Monorepo          | Nx                      | 22.5    |
+| API framework     | NestJS                  | 11.x    |
+| API protocol      | GraphQL (Apollo Server) | 5.x     |
+| Database ORM      | Prisma                  | 7.x     |
+| Database          | PostgreSQL              | 15      |
+| Frontend          | React                   | 19      |
+| Routing           | React Router            | 7.x     |
+| GraphQL client    | Apollo Client           | 4.x     |
+| Styling           | Tailwind CSS            | 4.x     |
+| Build (API)       | Webpack                 | 5.x     |
+| Build (Web)       | Vite                    | 7.x     |
+| Testing           | Vitest                  | 4.x     |
+| Auth              | Passport JWT            | —       |
+| Billing           | Stripe                  | 19.x    |
+| Email             | Nodemailer              | 7.x     |
+| Caching           | Redis (ioredis)         | —       |
+| Component library | Storybook               | 10.x    |

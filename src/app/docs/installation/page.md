@@ -88,50 +88,50 @@ The key variables you may want to customize in `.env`:
 
 ### Core settings
 
-| Variable | Default | Description |
-|---|---|---|
-| `APP_NAME` | `your-app-name` | Application name, used in emails and 2FA |
-| `PORT` | `3000` | API server port |
-| `JWT_SECRET` | `JWT_SECRET` | **Change this** — secret for signing auth tokens |
-| `API_URL` | `http://localhost:3000` | API base URL |
-| `SITE_URL` | `http://localhost:4200` | Frontend base URL |
+| Variable     | Default                 | Description                                      |
+| ------------ | ----------------------- | ------------------------------------------------ |
+| `APP_NAME`   | `your-app-name`         | Application name, used in emails and 2FA         |
+| `PORT`       | `3000`                  | API server port                                  |
+| `JWT_SECRET` | `JWT_SECRET`            | **Change this** — secret for signing auth tokens |
+| `API_URL`    | `http://localhost:3000` | API base URL                                     |
+| `SITE_URL`   | `http://localhost:4200` | Frontend base URL                                |
 
 ### Database
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable       | Default                                            | Description                  |
+| -------------- | -------------------------------------------------- | ---------------------------- |
 | `DATABASE_URL` | `postgresql://prisma:prisma@localhost:5432/prisma` | PostgreSQL connection string |
 
 ### Email
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable         | Default             | Description                                     |
+| ---------------- | ------------------- | ----------------------------------------------- |
 | `EMAIL_PROVIDER` | Not set (uses SMTP) | Set to `mock` to skip real emails in CI/testing |
-| `SMTP_HOST` | `localhost` | SMTP server host (Mailhog in local dev) |
-| `SMTP_PORT` | `1025` | SMTP server port |
+| `SMTP_HOST`      | `localhost`         | SMTP server host (Mailhog in local dev)         |
+| `SMTP_PORT`      | `1025`              | SMTP server port                                |
 
 ### Stripe billing (optional)
 
-| Variable | Description |
-|---|---|
-| `STRIPE_SECRET_KEY` | Your Stripe secret key (`sk_test_...`) |
+| Variable                 | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| `STRIPE_SECRET_KEY`      | Your Stripe secret key (`sk_test_...`)      |
 | `STRIPE_PUBLISHABLE_KEY` | Your Stripe publishable key (`pk_test_...`) |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret (`whsec_...`) |
-| `STRIPE_CURRENCY` | Currency code (default: `usd`) |
+| `STRIPE_WEBHOOK_SECRET`  | Webhook signing secret (`whsec_...`)        |
+| `STRIPE_CURRENCY`        | Currency code (default: `usd`)              |
 
 ### OAuth providers (optional)
 
-| Variable | Description |
-|---|---|
-| `GOOGLE_OAUTH_CLIENT_ID` | Google OAuth client ID |
+| Variable                     | Description                |
+| ---------------------------- | -------------------------- |
+| `GOOGLE_OAUTH_CLIENT_ID`     | Google OAuth client ID     |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth client secret |
-| `GITHUB_OAUTH_CLIENT_ID` | GitHub OAuth client ID |
+| `GITHUB_OAUTH_CLIENT_ID`     | GitHub OAuth client ID     |
 | `GITHUB_OAUTH_CLIENT_SECRET` | GitHub OAuth client secret |
 
 ### File storage (optional)
 
-| Variable | Description |
-|---|---|
+| Variable           | Description                                       |
+| ------------------ | ------------------------------------------------- |
 | `STORAGE_PROVIDER` | `local`, `s3`, `cloudinary`, `imagekit`, or `gcs` |
 
 Each provider has its own set of keys (AWS keys for S3, Cloudinary API key/secret, etc.). See `.env.example` for the full list.
