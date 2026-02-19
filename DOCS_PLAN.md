@@ -18,6 +18,7 @@ Navigation (left sidebar):
 ```
 
 **Homepage quick-link cards** (4):
+
 - Installation → `/docs/installation`
 - Architecture → `/docs/architecture`
 - Generators → `/docs/generators`
@@ -34,6 +35,7 @@ Navigation (left sidebar):
 **Purpose**: The "wow" page. Communicate what Nestled gives you in 30 seconds.
 
 **Content**:
+
 - Lead: "Clone a repo. Design your Prisma schema. Run one command. You have a production-ready full-stack app with auth, organizations, teams, roles, permissions, billing, admin dashboard, and a fully generated GraphQL API — instantly."
 - Quick-link cards (Installation, Architecture, Generators, Forms)
 - **Quick start** (the 5-minute version):
@@ -69,6 +71,7 @@ Navigation (left sidebar):
 **Purpose**: Detailed setup guide from zero to running app.
 
 **Content**:
+
 - **Prerequisites**:
   - Node.js 20+ (template uses Node 22)
   - pnpm (`npm install -g pnpm`)
@@ -80,34 +83,43 @@ Navigation (left sidebar):
   cd my-app
   ```
 - **Environment setup**:
+
   ```
   cp .env.example .env
   ```
+
   - Document every env var group from `.env.example`:
     - Core: APP_NAME, NODE_ENV, PORT, JWT_SECRET, API_URL, SITE_URL
     - Database: DATABASE_URL
     - Email: SMTP_HOST, SMTP_PORT, EMAIL_PROVIDER (smtp|mock)
     - 2FA: TWO_FACTOR_ISSUER, TWO_FACTOR_WINDOW, TWO_FACTOR_ENCRYPTION_KEY
-    - OAuth: GOOGLE_OAUTH_*, GITHUB_OAUTH_*
+    - OAuth: GOOGLE*OAUTH*_, GITHUB*OAUTH*_
     - Stripe: STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_CURRENCY
     - Storage: STORAGE_PROVIDER, S3/Cloudinary/ImageKit/GCS keys
   - Note: For local dev, defaults work — just need JWT_SECRET and DATABASE_URL
+
 - **Start infrastructure**:
+
   ```
   docker compose -f .dev/docker-compose.yml -p nestled up -d
   ```
+
   - Explain what this starts: PostgreSQL (5432), Redis (6379), Mailhog (SMTP 1025, UI 8025)
+
 - **Install dependencies**:
   ```
   pnpm install
   pnpm approve --builds
   ```
 - **Initialize database**:
+
   ```
   pnpm prisma db push
   pnpm prisma:seed
   ```
+
   - Explain what seed creates (admin user, sample data)
+
 - **Start development**:
   ```
   nx serve api      # API on http://localhost:3000
@@ -129,6 +141,7 @@ Navigation (left sidebar):
 **Purpose**: Reference page for every npm script and common nx command.
 
 **Content**:
+
 - **Development commands**:
   - `nx serve api` — Start API dev server (port 3000)
   - `nx serve web` — Start web dev server (port 4200)
@@ -189,6 +202,7 @@ Navigation (left sidebar):
 **Purpose**: Explain how Nestled structures your application and why.
 
 **Content**:
+
 - **Overview**: Nestled uses an Nx monorepo with a library-based architecture. Everything is organized into apps (deployable) and libs (shared code).
 - **Project structure**:
   ```
@@ -292,6 +306,7 @@ Navigation (left sidebar):
 **Purpose**: Reference for all available generators. Frame as "under the hood" — most users just run `pnpm db-update`.
 
 **Content**:
+
 - **Important note at top**: Callout explaining that generators are the building blocks that created your template. In day-to-day development, you'll mostly use `pnpm db-update` which runs the right generators automatically. This page documents the underlying commands for reference and advanced customization.
 - **Generator namespaces**: @nestledjs/config, @nestledjs/api, @nestledjs/web, @nestledjs/shared, @nestledjs/plugins
 - **For each generator**, document:
@@ -302,13 +317,15 @@ Navigation (left sidebar):
   - Dependencies on other generators
 
 #### @nestledjs/config generators:
+
 - **config:setup** — Updates TypeScript config, installs base dev dependencies (Prisma, Prettier, ESLint)
 - **config:init** — Creates .env, .prettierrc, Docker config, adds all npm scripts to package.json
 
 #### @nestledjs/api generators:
+
 - **api:setup** — Installs all API dependencies (NestJS, GraphQL, Prisma, auth, etc.)
 - **api:app** — Scaffolds the NestJS application in `apps/api/` with webpack config
-- **api:prisma** — Creates Prisma library with schema, seed files, all prisma:* scripts, and the `db-update` script
+- **api:prisma** — Creates Prisma library with schema, seed files, all prisma:\* scripts, and the `db-update` script
 - **api:config** — Creates API configuration library (env vars, settings)
 - **api:core** — Creates core libraries (data-access, feature, models, helpers) with Apollo Server config, PubSub, GraphQL plugins
 - **api:custom** — Reads Prisma schema, creates one module per model in `libs/api/custom/` with service, resolver, module. Won't overwrite existing files.
@@ -321,19 +338,23 @@ Navigation (left sidebar):
 - **api:workspace-setup** — Post-generation: ensures Docker, runs migrations, generates models, seeds database
 
 #### @nestledjs/web generators:
+
 - **web:setup** — Installs React 19, React Router 7, Vite, Tailwind, Apollo Client
 - **web:app** — Scaffolds React application in `apps/web/` with file-based routing, adds typecheck scripts
 
 #### @nestledjs/shared generators:
+
 - **shared:apollo** — Creates Apollo Client configuration library
 - **shared:sdk** — Reads Prisma schema, generates GraphQL fragments/queries/mutations per model, sets up codegen.yml. Options: `--forceCodegen`
 - **shared:styles** — Creates shared Tailwind CSS library
 
 #### @nestledjs/plugins generators:
+
 - **plugins:auth** — Creates complete authentication plugin (register, login, password reset, email verification, JWT strategy, email templates). Added to app.module.ts automatically.
 - **plugins:integration --name smtp-mailer** — Creates SMTP integration module
 
 #### Generator execution order (for reference):
+
 Document the full order as listed in the nestled README, with a note that this has already been run for you in the template.
 
 ---
@@ -345,6 +366,7 @@ Document the full order as listed in the nestled README, with a note that this h
 **Purpose**: How to deploy your Nestled app to production.
 
 **Content**:
+
 - **Railway deployment** (primary path):
   - Clone the Railway template (link TBD — user will provide)
   - Connect to your repo

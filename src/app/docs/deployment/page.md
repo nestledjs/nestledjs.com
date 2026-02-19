@@ -26,54 +26,54 @@ Railway is the fastest way to deploy a Nestled application. It provides managed 
 
 Set these in your Railway service settings:
 
-| Variable | Value |
-|---|---|
-| `NODE_ENV` | `production` |
-| `PORT` | `3000` (Railway sets this automatically) |
-| `JWT_SECRET` | A strong random string — generate with `openssl rand -hex 64` |
-| `API_URL` | Your Railway API URL (e.g., `https://api.yourdomain.com`) |
-| `SITE_URL` | Your Railway web URL (e.g., `https://yourdomain.com`) |
-| `DATABASE_URL` | Railway provides this from the PostgreSQL addon |
-| `REDIS_URL` | Railway provides this from the Redis addon |
+| Variable       | Value                                                         |
+| -------------- | ------------------------------------------------------------- |
+| `NODE_ENV`     | `production`                                                  |
+| `PORT`         | `3000` (Railway sets this automatically)                      |
+| `JWT_SECRET`   | A strong random string — generate with `openssl rand -hex 64` |
+| `API_URL`      | Your Railway API URL (e.g., `https://api.yourdomain.com`)     |
+| `SITE_URL`     | Your Railway web URL (e.g., `https://yourdomain.com`)         |
+| `DATABASE_URL` | Railway provides this from the PostgreSQL addon               |
+| `REDIS_URL`    | Railway provides this from the Redis addon                    |
 
 ### Email configuration
 
-| Variable | Value |
-|---|---|
-| `EMAIL_PROVIDER` | `smtp` |
-| `SMTP_HOST` | Your email provider's SMTP host |
-| `SMTP_PORT` | Usually `587` for TLS |
-| `SMTP_USER` | Your SMTP username |
-| `SMTP_PASS` | Your SMTP password |
-| `APP_EMAIL` | Your app's "from" email address |
-| `APP_SUPPORT_EMAIL` | Support email address |
+| Variable            | Value                           |
+| ------------------- | ------------------------------- |
+| `EMAIL_PROVIDER`    | `smtp`                          |
+| `SMTP_HOST`         | Your email provider's SMTP host |
+| `SMTP_PORT`         | Usually `587` for TLS           |
+| `SMTP_USER`         | Your SMTP username              |
+| `SMTP_PASS`         | Your SMTP password              |
+| `APP_EMAIL`         | Your app's "from" email address |
+| `APP_SUPPORT_EMAIL` | Support email address           |
 
 ### Stripe configuration (if using billing)
 
-| Variable | Value |
-|---|---|
-| `STRIPE_SECRET_KEY` | Your live Stripe secret key (`sk_live_...`) |
-| `STRIPE_PUBLISHABLE_KEY` | Your live publishable key (`pk_live_...`) |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret from Stripe dashboard |
-| `STRIPE_CURRENCY` | `usd` (or your currency) |
+| Variable                 | Value                                        |
+| ------------------------ | -------------------------------------------- |
+| `STRIPE_SECRET_KEY`      | Your live Stripe secret key (`sk_live_...`)  |
+| `STRIPE_PUBLISHABLE_KEY` | Your live publishable key (`pk_live_...`)    |
+| `STRIPE_WEBHOOK_SECRET`  | Webhook signing secret from Stripe dashboard |
+| `STRIPE_CURRENCY`        | `usd` (or your currency)                     |
 
 Set up the Stripe webhook endpoint in your Stripe dashboard pointing to `{API_URL}/webhooks/stripe`.
 
 ### OAuth configuration (if using social login)
 
-| Variable | Value |
-|---|---|
-| `GOOGLE_OAUTH_CLIENT_ID` | From Google Cloud Console |
-| `GOOGLE_OAUTH_CLIENT_SECRET` | From Google Cloud Console |
-| `GITHUB_OAUTH_CLIENT_ID` | From GitHub Developer Settings |
+| Variable                     | Value                          |
+| ---------------------------- | ------------------------------ |
+| `GOOGLE_OAUTH_CLIENT_ID`     | From Google Cloud Console      |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | From Google Cloud Console      |
+| `GITHUB_OAUTH_CLIENT_ID`     | From GitHub Developer Settings |
 | `GITHUB_OAUTH_CLIENT_SECRET` | From GitHub Developer Settings |
 
 Set callback URLs to `{API_URL}/api/auth/google/callback` and `{API_URL}/api/auth/github/callback`.
 
 ### Storage configuration (if using file uploads)
 
-| Variable | Value |
-|---|---|
+| Variable           | Value                                    |
+| ------------------ | ---------------------------------------- |
 | `STORAGE_PROVIDER` | `s3`, `cloudinary`, `imagekit`, or `gcs` |
 
 Then set the provider-specific keys (AWS keys for S3, etc.). Don't use `local` in production — files would be lost on redeploy.

@@ -48,17 +48,17 @@
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
-    "@algolia/autocomplete-core": "^1.9.2",
-    "@headlessui/react": "^2.1.0",
+    "@algolia/autocomplete-core": "^1.19.6",
+    "@headlessui/react": "^2.2.9",
     "@markdoc/markdoc": "^0.4.0",
     "@markdoc/next.js": "^0.3.4",
     "@sindresorhus/slugify": "^2.1.0",
-    "@tailwindcss/postcss": "^4.1.7",
-    "@tailwindcss/typography": "^0.5.7",
-    "@types/node": "^20.10.8",
+    "@tailwindcss/postcss": "^4.2.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@types/react-highlight-words": "^0.16.4",
+    "@types/react-highlight-words": "^0.20.1",
     "clsx": "^2.1.0",
     "fast-glob": "^3.2.12",
     "flexsearch": "^0.7.31",
@@ -68,18 +68,18 @@
     "prism-react-renderer": "^2.0.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-highlight-words": "^0.20.0",
+    "react-highlight-words": "^0.21.0",
     "simple-functional-loader": "^1.2.1",
-    "tailwindcss": "^4.1.7",
-    "typescript": "^5.3.3"
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
-    "prettier": "^3.3.2",
+    "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "sharp": "0.33.1"
+    "sharp": "^0.34.5"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
