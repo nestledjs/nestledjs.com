@@ -9,6 +9,7 @@ export const navigation = [
       { title: 'Generators', href: '/docs/generators' },
       { title: 'Deployment', href: '/docs/deployment' },
       { title: 'Resources', href: '/docs/resources' },
+      { title: 'Generators (Legacy)', href: '/docs/generators-legacy' },
     ],
   },
 ]
