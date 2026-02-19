@@ -28,22 +28,18 @@ pnpm sdk watch`
 
 const schemaCode = `// Design your schema — Nestled generates the rest
 
-model Customer {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  invoices  Invoice[]
-}
-
 model Invoice {
   id         String        @id @default(uuid())
+  number     String        @unique
   amount     Decimal
+  tax        Decimal       @default(0)
   status     InvoiceStatus @default(DRAFT)
+  dueDate    DateTime?
   customer   Customer      @relation(fields: [customerId], references: [id])
   customerId String
   lineItems  LineItem[]
+  createdAt  DateTime      @default(now())
 }
-
 // pnpm db-update → full CRUD API + typed SDK + admin dashboard`
 
 const tabs = [
