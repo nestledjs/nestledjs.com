@@ -35,6 +35,14 @@ export const metadata: Metadata = {
   },
   description:
     'Nestled generates scalable, production-ready full-stack applications from a single schema. Built on Nx, it includes APIs, web apps, mobile apps, and shared libraries with best practices built-in.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+  },
 }
 
 export default function RootLayout({
