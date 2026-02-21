@@ -6,10 +6,8 @@ nextjs:
     description: AI-ready feature spec for adding custom role creation, permission assignment UI, super admin dashboard, and user permission auditing to your Nestled application.
 ---
 
-Add-ons are AI-ready feature specifications for capabilities not included in the base Nestled template. They are designed to be copied into an AI coding assistant (like Claude Code) for rapid implementation on your Nestled project. Each add-on builds on the existing template architecture so the generated code fits naturally into your codebase.
-
 {% callout type="note" %}
-This is one of several add-on specs available. The idea is to copy the full specification below into your AI assistant and let it implement the feature in your project. The spec contains all the context an LLM needs: database considerations, backend services, resolvers, GraphQL operations, frontend pages, and an implementation checklist.
+This is an [add-on idea](/docs/add-ons) -- a detailed AI-ready spec you can copy into your coding assistant to implement this feature. See [Add-On Ideas](/docs/add-ons) for how these work.
 {% /callout %}
 
 ## What this add-on provides

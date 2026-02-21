@@ -32,6 +32,9 @@ export const navigation = [
   },
   {
     title: 'Add-ons',
-    links: [{ title: 'Granular RBAC Management', href: '/docs/granular-rbac' }],
+    links: [
+      { title: 'Add-On Ideas', href: '/docs/add-ons' },
+      { title: 'Granular RBAC Management', href: '/docs/granular-rbac' },
+    ],
   },
 ]
