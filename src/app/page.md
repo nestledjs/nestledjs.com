@@ -1,5 +1,9 @@
 ---
 title: Getting started
+nextjs:
+  metadata:
+    title: Getting Started
+    description: Clone a repo, design your Prisma schema, run one command — get a production-ready full-stack app with auth, organizations, teams, RBAC, billing, and a generated GraphQL API.
 ---
 
 Clone a repo. Design your Prisma schema. Run one command. You have a production-ready full-stack app with authentication, organizations, teams, roles, permissions, billing, an admin dashboard, and a fully generated GraphQL API — instantly. {% .lead %}
