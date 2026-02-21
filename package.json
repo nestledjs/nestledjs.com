@@ -45,6 +45,7 @@
     "ci:smoke-test": "echo '🚀 Running Smoke Test...' && pnpm run ci:start-and-test",
     "ci:start-and-test": "concurrently --kill-others --success=first \"pnpm start\" \"pnpm run ci:wait-and-curl\"",
     "ci:wait-and-curl": "sleep 10 && curl -f -s -o /dev/null http://localhost:3000 && echo '✅ Smoke test passed!'",
+    "check-links": "node scripts/check-internal-links.mjs",
     "prepare": "husky"
   },
   "browserslist": "defaults, not ie <= 11",
