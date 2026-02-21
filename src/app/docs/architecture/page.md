@@ -183,66 +183,21 @@ Both sets are processed by GraphQL Code Generator to produce `libs/shared/sdk/sr
 
 ## Authentication
 
-The auth system lives in `libs/api/custom/src/lib/plugins/auth/` and provides:
+The auth system lives in `libs/api/custom/src/lib/plugins/auth/` and provides registration with email verification, login/logout with JWT tokens in HTTP-only cookies, password reset via email, session tracking with device/IP info, and admin emulation for debugging.
 
-- **Registration** with email verification
-- **Login/logout** with JWT tokens stored in HTTP-only cookies
-- **Password reset** via email with expiring tokens
-- **Session tracking** — every login creates a `UserSession` record with device info and IP address
-- **Session validation** — the JWT strategy validates the session is still active on every request
-- **Admin emulation** — super admins can impersonate users for debugging
+On every request, the JWT strategy validates the session is still active in the database, enabling features like session revocation and "logout everywhere". The template also includes Google and GitHub OAuth plus TOTP-based two-factor authentication.
 
-### How auth works
-
-1. User logs in — API validates credentials, creates a `UserSession`, returns a JWT
-2. JWT is stored in an HTTP-only cookie (or Authorization header)
-3. On every request, the `JwtStrategy` extracts the JWT, verifies the session is still valid in the database, and attaches the user to the request context
-4. GraphQL resolvers use `@UseGuards(GqlAuthGuard)` to require authentication or `@UseGuards(GqlAuthAdminGuard)` to require admin access
-5. The `@CtxUser()` decorator provides the authenticated user in resolver methods
-
-### OAuth and 2FA
-
-The template includes infrastructure for Google and GitHub OAuth, plus TOTP-based two-factor authentication using Speakeasy. Set the appropriate environment variables to enable these features.
+For the full authentication flow, permission system, guards, and frontend integration, see [Authentication & RBAC](/docs/authentication). For session management details, see [Session Security](/docs/session-security). For OAuth setup, see [OAuth](/docs/oauth). For 2FA configuration, see [Two-Factor Auth](/docs/two-factor-auth).
 
 ---
 
 ## Multi-tenancy
 
-Nestled uses an organization-based multi-tenancy model:
+Nestled uses an organization-based multi-tenancy model where every piece of data is scoped to an organization. A Prisma client extension automatically injects `organizationId` filters into all queries for organization-scoped models, and a tenancy middleware validates organization membership on every request.
 
-```text
-User → OrganizationMember → Organization
-                               ├── Teams → TeamMembers
-                               ├── Roles → Permissions
-                               ├── Invites
-                               └── Subscription (Stripe)
-```
+Organizations add members through an invite system with role-based permissions. Three default roles (Owner, Admin, Member) are created for each organization.
 
-### Tenancy middleware
-
-A middleware on the GraphQL endpoint sets the organization context for every request:
-
-1. Reads the user's `activeOrganizationId` (or a `$organizationId` GraphQL variable)
-2. Validates the user is a member of that organization
-3. Makes the organization ID available to all resolvers
-
-This means your queries are automatically scoped — users can only access data belonging to their active organization.
-
-### Invites
-
-Organizations add members through an invite system. An admin sends an invite email, the recipient clicks a link, and they're added as a member with a specified role.
-
----
-
-## Role-based access control
-
-The RBAC system uses three models:
-
-- **Role** — Named roles (e.g., "Owner", "Admin", "Member") scoped to an organization
-- **Permission** — Action/subject pairs (e.g., `create`/`Team`, `read`/`AuditLog`)
-- **OrganizationMember** — Links a user to an organization with a specific role
-
-Roles have many permissions. Members have a role. Guards check the role's permissions to authorize operations.
+For the full tenant isolation architecture, Prisma extension details, and migration guide, see [Tenant Isolation](/docs/tenant-isolation). For role and permission details, see [Authentication & RBAC](/docs/authentication).
 
 ---
 
@@ -336,25 +291,11 @@ Full subscription lifecycle management:
 
 ### Email
 
-Multi-provider email with templates:
-
-- **SMTP** for production (SendGrid, AWS SES, Mailtrap, etc.)
-- **Mock** for CI/testing (logs to console)
-- **Mailhog** for local development (SMTP on port 1025, UI at [localhost:8025](http://localhost:8025))
+Multi-provider email with templates — SMTP for production (SendGrid, AWS SES, Mailtrap), mock mode for CI/testing, and Mailhog for local development. See [Email](/docs/email) for setup and template customization.
 
 ### File storage
 
-Multi-provider file uploads:
-
-| Provider   | Config                                |
-| ---------- | ------------------------------------- |
-| Local      | Files stored in `./uploads` directory |
-| S3         | AWS S3 or S3-compatible storage       |
-| Cloudinary | Image transformation service          |
-| ImageKit   | Image optimization CDN                |
-| GCS        | Google Cloud Storage                  |
-
-Set `STORAGE_PROVIDER` in your `.env` and configure the provider-specific keys.
+Multi-provider file uploads with S3, Cloudinary, ImageKit, GCS, and local storage. Set `STORAGE_PROVIDER` in your `.env` and configure the provider-specific keys. See [Storage](/docs/storage) for provider comparison and configuration.
 
 ### SMS
 
