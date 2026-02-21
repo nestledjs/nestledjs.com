@@ -15,11 +15,13 @@ export function QuickLink({
   description,
   href,
   icon,
+  target,
 }: {
   title: string
   description: string
   href: string
   icon: React.ComponentProps<typeof Icon>['icon']
+  target?: string
 }) {
   return (
     <div className="group relative rounded-xl border border-slate-200 dark:border-slate-800">
@@ -27,7 +29,11 @@ export function QuickLink({
       <div className="relative overflow-hidden rounded-xl p-6">
         <Icon icon={icon} className="h-8 w-8" />
         <h2 className="mt-4 font-display text-base text-slate-900 dark:text-white">
-          <Link href={href}>
+          <Link
+            href={href}
+            target={target}
+            rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+          >
             <span className="absolute -inset-px rounded-xl" />
             {title}
           </Link>

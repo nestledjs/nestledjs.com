@@ -44,7 +44,8 @@
     "ci:security": "echo '🔒 Running Security Checks...' && pnpm audit --audit-level=high && pnpm outdated || true",
     "ci:smoke-test": "echo '🚀 Running Smoke Test...' && pnpm run ci:start-and-test",
     "ci:start-and-test": "concurrently --kill-others --success=first \"pnpm start\" \"pnpm run ci:wait-and-curl\"",
-    "ci:wait-and-curl": "sleep 10 && curl -f -s -o /dev/null http://localhost:3000 && echo '✅ Smoke test passed!'"
+    "ci:wait-and-curl": "sleep 10 && curl -f -s -o /dev/null http://localhost:3000 && echo '✅ Smoke test passed!'",
+    "prepare": "husky"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
@@ -77,9 +78,14 @@
     "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "sharp": "^0.34.5"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
