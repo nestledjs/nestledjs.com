@@ -28,7 +28,7 @@ Nestled uses pnpm for package management. Its efficient disk usage and strict de
 ## Clone the template
 
 ```shell
-git clone https://github.com/nestledjs/nestled_template.git my-app
+git clone https://github.com/nestledjs/nestled-template.git my-app
 cd my-app
 ```
 

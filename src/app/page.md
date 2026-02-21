@@ -27,7 +27,7 @@ Get a fully working application in five minutes.
 ### Clone the template and set up
 
 ```shell
-git clone https://github.com/nestledjs/nestled_template.git my-app
+git clone https://github.com/nestledjs/nestled-template.git my-app
 cd my-app
 cp .env.example .env
 pnpm install
