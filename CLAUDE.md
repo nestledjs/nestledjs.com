@@ -56,14 +56,12 @@ nextjs:
 
 ### LLM SEO Files
 
-These files make the docs AI-accessible. **When adding or removing a doc page**, update both:
+All LLM SEO routes auto-discover pages via the shared `src/lib/docs.ts` utility (globs `**/page.md`). **No manual updates needed when adding or removing doc pages** — just add the `page.md` file and an entry in `src/lib/navigation.ts`.
 
-- `src/app/llms.txt/route.ts` — update the doc links list
-- `src/app/llms-full.txt/route.ts` — update the `PAGE_ORDER` array
-
-Auto-generated (no manual updates needed):
-
-- `src/app/sitemap.ts` — auto-globs all `page.md` files
+- `src/lib/docs.ts` — shared page discovery; all routes below use `getDocPages()`
+- `src/app/llms.txt/route.ts` — summary with links for LLM crawlers
+- `src/app/llms-full.txt/route.ts` — concatenated full docs for LLM crawlers
+- `src/app/sitemap.ts` — XML sitemap
 - `src/app/robots.ts` — static config
 
 ### Path Alias
