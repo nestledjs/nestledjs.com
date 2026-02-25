@@ -286,9 +286,47 @@ The `RequirePermission` component conditionally renders children based on the us
 </RequirePermission>
 ```
 
+### Organization switching
+
+The org switcher dropdown displays the user's organizations from the `me` query. When the user selects a different organization, the frontend must call the `switchActiveOrganization` mutation, clear cached data, and reload the user's context.
+
+```typescript
+import {
+  useSwitchActiveOrganizationMutation,
+  useMeQuery,
+} from '@nestled-template/shared/sdk'
+import { useApolloClient } from '@apollo/client'
+
+function useOrganizationSwitcher() {
+  const client = useApolloClient()
+  const { refetch: refetchMe } = useMeQuery()
+  const [switchOrg] = useSwitchActiveOrganizationMutation()
+
+  async function switchOrganization(organizationId: string) {
+    await switchOrg({ variables: { input: { organizationId } } })
+    localStorage.setItem('activeOrganizationId', organizationId)
+    await client.resetStore()
+    await refetchMe()
+  }
+
+  return { switchOrganization }
+}
+```
+
+The flow is:
+
+1. **Mutation** -- `switchActiveOrganization` updates the user's `activeOrganizationId` in the database
+2. **localStorage** -- the Apollo link reads `activeOrganizationId` from localStorage to set the `X-Organization-ID` header on every request
+3. **Cache reset** -- `client.resetStore()` clears all cached queries so stale data from the previous organization is not displayed
+4. **Refetch** -- refetching `me` reloads the user's permissions and active organization in the global context
+
+{% callout type="warning" title="Don't skip the cache reset" %}
+Without `client.resetStore()`, queries already in the Apollo cache will continue showing data from the previous organization. The org switcher will appear to do nothing because the UI still renders old cached results.
+{% /callout %}
+
 ### Apollo Client organization header
 
-The Apollo client automatically includes the active organization ID with every GraphQL request via the `X-Organization-ID` header. The `activeOrganizationId` is synced to localStorage whenever the user switches organizations.
+The Apollo client automatically includes the active organization ID with every GraphQL request via the `X-Organization-ID` header. The `activeOrganizationId` is read from localStorage, which is updated whenever the user switches organizations.
 
 ---
 

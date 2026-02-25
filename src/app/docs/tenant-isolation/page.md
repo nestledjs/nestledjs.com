@@ -114,18 +114,69 @@ async someServiceMethod(organizationContext: OrganizationContext) {
 
 ## Frontend integration
 
-Set the active organization in your GraphQL requests:
+### Organization switching
 
-```graphql
-mutation {
-  switchActiveOrganization(input: { organizationId: "org-123" }) {
-    id
-    activeOrganizationId
+The `switchActiveOrganization` mutation updates the user's `activeOrganizationId` in the database and returns the updated user. After calling it, you must reset the Apollo Client cache and refetch the `me` query so the entire app reflects the new organization context.
+
+```typescript
+import {
+  useSwitchActiveOrganizationMutation,
+  useMeQuery,
+} from '@nestled-template/shared/sdk'
+import { useApolloClient } from '@apollo/client'
+
+function useOrganizationSwitcher() {
+  const client = useApolloClient()
+  const { refetch: refetchMe } = useMeQuery()
+  const [switchOrg] = useSwitchActiveOrganizationMutation()
+
+  async function switchOrganization(organizationId: string) {
+    // 1. Call the mutation to update activeOrganizationId on the server
+    await switchOrg({ variables: { input: { organizationId } } })
+
+    // 2. Update localStorage so the Apollo link sends the new header
+    localStorage.setItem('activeOrganizationId', organizationId)
+
+    // 3. Clear the entire Apollo cache — stale data belongs to the old org
+    await client.resetStore()
+
+    // 4. Refetch the me query to reload user context with new org permissions
+    await refetchMe()
   }
+
+  return { switchOrganization }
 }
 ```
 
-Or override per-request with a header:
+{% callout type="warning" title="Cache reset is required" %}
+Skipping `client.resetStore()` after switching organizations will leave stale data from the previous organization in the Apollo cache. Every cached query (teams, members, invoices, etc.) belongs to the old org and must be cleared.
+{% /callout %}
+
+Wire this into your org switcher dropdown:
+
+```typescript
+function OrganizationSwitcher() {
+  const { user, activeOrganization } = useGlobalCtx()
+  const { switchOrganization } = useOrganizationSwitcher()
+
+  return (
+    <select
+      value={activeOrganization?.id}
+      onChange={(e) => switchOrganization(e.target.value)}
+    >
+      {user?.myOrganizations?.map((org) => (
+        <option key={org.id} value={org.id}>
+          {org.name}
+        </option>
+      ))}
+    </select>
+  )
+}
+```
+
+### Per-request header override
+
+For API clients or cases where you need to query a different organization without switching the user's active org, use the `X-Organization-ID` header:
 
 ```typescript
 const client = new ApolloClient({
