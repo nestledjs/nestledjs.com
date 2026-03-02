@@ -11,7 +11,7 @@ import blurCyanImage from '@/images/blur-cyan.png'
 import blurIndigoImage from '@/images/blur-indigo.png'
 
 const terminalCode = `# Clone the template
-git clone https://github.com/nestledjs/nestled_template.git my-app
+git clone https://github.com/nestledjs/nestled-template.git my-app
 cd my-app && cp .env.example .env && pnpm install
 
 # Set up your workspace
