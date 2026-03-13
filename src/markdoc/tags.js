@@ -1,5 +1,6 @@
 import { Callout } from '@/components/Callout'
 import { QuickLink, QuickLinks } from '@/components/QuickLinks'
+import { UpdatesSignup } from '@/components/UpdatesSignup'
 
 const tags = {
   callout: {
@@ -31,6 +32,10 @@ const tags = {
   },
   'quick-links': {
     render: QuickLinks,
+  },
+  'updates-signup': {
+    selfClosing: true,
+    render: UpdatesSignup,
   },
   'quick-link': {
     selfClosing: true,

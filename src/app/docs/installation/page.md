@@ -39,6 +39,8 @@ rm -rf .git
 git init
 ```
 
+{% updates-signup /%}
+
 ---
 
 ## Configure your environment

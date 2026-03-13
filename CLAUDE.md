@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```shell
-pnpm dev          # Start dev server (localhost:3000)
+pnpm dev          # Start dev server (localhost:3001)
 pnpm build        # Production build (also validates all routes)
 pnpm lint         # ESLint
 pnpm lint:fix     # ESLint with auto-fix

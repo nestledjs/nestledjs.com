@@ -37,6 +37,8 @@ cp .env.example .env
 pnpm install
 ```
 
+{% updates-signup /%}
+
 ### Name your project and start infrastructure
 
 ```shell
