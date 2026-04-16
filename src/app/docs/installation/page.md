@@ -8,6 +8,10 @@ nextjs:
 
 This guide walks you through every step from a blank machine to a running Nestled application.
 
+{% callout title="Want to skip local setup?" %}
+If you'd rather go straight to the cloud, use the **Nestled Railway template** to deploy a fully wired Nestled application — API, web app, PostgreSQL, and Redis — directly to Railway in minutes. See the [Deployment guide](/docs/deployment) for details.
+{% /callout %}
+
 ---
 
 ## Prerequisites
