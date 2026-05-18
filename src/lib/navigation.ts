@@ -35,6 +35,7 @@ export const navigation = [
     links: [
       { title: 'Add-On Ideas', href: '/docs/add-ons' },
       { title: 'Granular RBAC Management', href: '/docs/granular-rbac' },
+      { title: 'Blog Publishing', href: '/docs/blog' },
     ],
   },
 ]

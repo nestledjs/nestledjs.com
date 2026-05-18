@@ -51,6 +51,8 @@ These specs are written to give an AI assistant all the context it needs: existi
 
 {% quick-link title="Granular RBAC Management" icon="presets" href="/docs/granular-rbac" description="Custom role creation, permission assignment UI, super admin dashboard, and user permission auditing." /%}
 
+{% quick-link title="Blog Publishing" icon="installation" href="/docs/blog" description="Public blog, authoring workflow, Prisma schema, GraphQL operations, SDK generation, and React Router pages." /%}
+
 {% /quick-links %}
 
 ---
