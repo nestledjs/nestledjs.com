@@ -131,11 +131,15 @@ Because custom code is never overwritten, the more thought you put into your Pri
 
 ## The code generation pipeline
 
-When you run `pnpm db-update`, four things happen:
+When you run `pnpm db-update`, five things happen:
 
-### Step 1: Generate CRUD resolvers
+### Step 1: Generate the Prisma client
 
-`nx g @nestledjs/api:generate-crud` reads your Prisma schema and generates a complete GraphQL CRUD API for every model. For each model, you get:
+`pnpm prisma:generate` regenerates the Prisma client from your current schema. This is explicit because workspaces with `prisma.config.ts` need the client generated before seed code, generated resolvers, or custom services import Prisma.
+
+### Step 2: Generate CRUD resolvers
+
+`nx g @nestledjs/generators:crud` reads your Prisma schema and generates a complete GraphQL CRUD API for every model. For each model, you get:
 
 - `{model}` query — read one by ID
 - `{models}` query — read many with pagination
@@ -162,22 +166,24 @@ Auth levels:
 - **`"admin"`** (default) — Requires `GqlAuthAdminGuard` (super admin only)
 - **`"user"`** — Requires `GqlAuthGuard` (any authenticated user)
 
-### Step 2: Generate TypeScript models
+### Step 3: Generate TypeScript models
 
-`pnpm generate:models` uses `@prisma/internals` to parse the Prisma DMMF and generate TypeScript classes with GraphQL decorators. These live in `libs/api/core/models/` and are used throughout the API for type-safe resolvers.
+`nx g @nestledjs/generators:models` uses `@prisma/internals` to parse the Prisma DMMF and generate TypeScript classes with GraphQL decorators. These live in `libs/api/core/models/` and are used throughout the API for type-safe resolvers.
 
-### Step 3: Generate the GraphQL SDK
+Prisma `Json` fields are emitted as `GraphQLJSON`, so object, array, and scalar JSON values are valid GraphQL values.
 
-`nx g @nestledjs/shared:sdk` generates two sets of GraphQL operations:
+### Step 4: Generate custom API modules
+
+`nx g @nestledjs/generators:custom` creates a custom module (service + resolver + NestJS module) for any Prisma model that doesn't already have one. Existing modules are never overwritten — this step is purely additive.
+
+### Step 5: Generate the GraphQL SDK
+
+`nx g @nestledjs/generators:sdk` generates two sets of GraphQL operations:
 
 - **Admin SDK** (`sdk/src/__admin/`) — Overwritten every time. Complete fragments, queries, and mutations for every model with nested relation IDs and count fields. Powers the admin dashboard.
 - **User SDK** (`sdk/src/graphql/`) — Generated once as empty templates. Created for new models only, never overwrites existing files. This is where you write your own frontend queries.
 
 Both sets are processed by GraphQL Code Generator to produce `libs/shared/sdk/src/generated/graphql.ts` — fully typed TypeScript operations for Apollo Client.
-
-### Step 4: Generate custom API modules
-
-`nx g @nestledjs/api:custom` creates a custom module (service + resolver + NestJS module) for any Prisma model that doesn't already have one. Existing modules are never overwritten — this step is purely additive.
 
 ---
 

@@ -78,12 +78,17 @@ nx g @nestledjs/generators:workspace-setup --name my-app
 This does several things:
 
 1. **Renames the workspace** — finds and replaces `nestled-template` throughout the project with your chosen name. All your imports will use `@my-app/...` going forward.
-2. **Starts Docker services** — spins up PostgreSQL, Redis, and Mailhog
-3. **Runs database migrations** — pushes the Prisma schema to your database
-4. **Seeds the database** — creates an admin user and initial data
+2. **Preserves updater metadata** — skips `.nestled/` and `.nestled-updates/` so future upgrade and doctor commands keep working.
+3. **Ensures `.env` exists** — copies `.env.example` if you skipped that step.
+4. **Validates your database URL** — refuses to run against non-localhost databases.
+5. **Starts Docker services** — spins up PostgreSQL, Redis, and Mailhog, then waits for the database to accept connections.
+6. **Applies Prisma migrations** — updates your local database schema.
+7. **Generates the Prisma client** — runs `pnpm prisma:generate` before seed code imports Prisma.
+8. **Generates GraphQL types** — prepares the API types used by the template.
+9. **Seeds the database** — creates an admin user and initial data.
 
 {% callout title="Choosing a name" %}
-Use lowercase with dashes for spaces (e.g., `my-app`, `acme-saas`, `todo-pro`). Keep it short — this becomes the `@name/` prefix for every import in your project, so shorter means less typing during development.
+Use lowercase with dashes for spaces (e.g., `my-app`, `acme-saas`, `todo-pro`). The name must match `^[a-z][a-z0-9-]*$`. Keep it short — this becomes the `@name/` prefix for every import in your project, so shorter means less typing during development.
 {% /callout %}
 
 ---

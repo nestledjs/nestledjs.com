@@ -128,10 +128,10 @@ Nestled uses versioned Prisma migrations — not `prisma db push`. This gives yo
 Make sure Docker is running, then run the workspace setup generator:
 
 ```shell
-npx nx g @nestledjs/api:workspace-setup
+npx nx g @nestledjs/generators:workspace-setup --name my-app
 ```
 
-This spins up a local PostgreSQL container and prepares your development environment.
+This spins up a local PostgreSQL container and prepares your development environment. The generator refuses non-localhost `DATABASE_URL` values, so do not point `.env` at your Railway database for this step.
 
 **Step 2 — Create your initial migration**
 

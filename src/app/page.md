@@ -45,7 +45,7 @@ pnpm install
 nx g @nestledjs/generators:workspace-setup --name my-app
 ```
 
-This single command renames the workspace throughout the project, spins up Docker (PostgreSQL, Redis, Mailhog), runs database migrations, and seeds your database. The `--name` becomes your workspace namespace — all your imports will use `@my-app/...`, so keep it short, lowercase, with dashes for spaces.
+This single command renames the workspace throughout the project, ensures `.env` exists, validates that your database URL is local, spins up Docker (PostgreSQL, Redis, Mailhog), runs database migrations, generates Prisma and GraphQL types, and seeds your database. The `--name` becomes your workspace namespace — all your imports will use `@my-app/...`, so keep it short, lowercase, with dashes for spaces.
 
 ### Design your schema
 
@@ -73,7 +73,7 @@ pnpm sdk watch     # Auto-regenerate types on changes
 Visit `http://localhost:4200` and register your first account — the first user to register automatically becomes the super admin with full access to the admin dashboard and all management features.
 
 {% callout title="What just happened?" %}
-With one command, `pnpm db-update` ran four steps: generated CRUD resolvers for every model, built GraphQL types from your schema, created custom module boilerplate, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
+With one command, `pnpm db-update` regenerated the Prisma client, generated CRUD resolvers for every model, built GraphQL models from your schema, created custom module boilerplate, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
 {% /callout %}
 
 ---
