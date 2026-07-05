@@ -27,6 +27,8 @@ export const navigation = [
     links: [
       { title: 'Architecture', href: '/docs/architecture' },
       { title: 'Generators', href: '/docs/generators' },
+      { title: 'Generators Changelog', href: '/docs/generators-changelog' },
+      { title: 'Upgrade Notes', href: '/docs/upgrade-notes' },
       { title: 'Resources', href: '/docs/resources' },
     ],
   },

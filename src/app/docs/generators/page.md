@@ -21,15 +21,19 @@ In day-to-day development, `pnpm db-update` runs the schema-driven generators au
 {% /callout %}
 
 {% callout title="Upgrading from 1.0.0" %}
-Upgrade straight to the 1.1.x generator line, then regenerate models so Json fields use the correct GraphQL scalar:
+Upgrade straight to the 1.1.x generator line, then regenerate models so Json fields use the correct GraphQL scalar and `@graphqlOmit` fields are dropped from the schema:
 
 ```shell
-pnpm add -E @nestledjs/generators@1.1.2
+pnpm add -E @nestledjs/generators@1.1.3
 nx g @nestledjs/generators:models
 git diff
 ```
 
-For the models regeneration, expect GraphQL model changes only.
+For the models regeneration, expect GraphQL model changes only. See the [changelog](/docs/generators-changelog) for the full version history and per-release upgrade steps.
+{% /callout %}
+
+{% callout type="warning" title="Security fix in 1.1.3 — action required for deployed workspaces" %}
+Before 1.1.3 the `models` generator ignored `@graphqlOmit`, so annotated fields (commonly secrets like `encryptedAccessToken`) stayed queryable through the GraphQL API. Upgrade to `@nestledjs/generators@1.1.3`, regenerate models, and follow the [security audit steps](/docs/generators-changelog#1-1-3) — including rotating any exposed secrets.
 {% /callout %}
 
 ---
@@ -95,6 +99,16 @@ Reads your Prisma schema and generates TypeScript classes with GraphQL decorator
 This generator replaces the older template-local model generation script. Keeping model generation in `@nestledjs/generators` means fixes ship with the generator package instead of requiring template file changes.
 
 Prisma `Json` fields are emitted as `GraphQLJSON`, which supports objects, arrays, and scalar JSON values. If you upgraded from a version that emitted `GraphQLJSONObject`, regenerate models after installing `@nestledjs/generators@1.1.2`.
+
+Fields annotated with `@graphqlOmit` in the Prisma schema are dropped from the generated models (both the `@Field()` decorator and the property). Because the emitted `@ObjectType()` **is** the server GraphQL schema, this makes `models.ts` the single authoritative enforcement point — an omitted field never reaches `api-schema.graphql` and is not queryable through the API. This behavior was fixed in 1.1.3; see the [changelog](/docs/generators-changelog#1-1-3) for the security audit steps if you built with an earlier version.
+
+```prisma
+model OAuthAccount {
+  id                   String @id
+  /// @graphqlOmit
+  encryptedAccessToken String   // not emitted to the GraphQL schema
+}
+```
 
 ---
 
