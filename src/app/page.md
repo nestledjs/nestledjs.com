@@ -16,6 +16,8 @@ Clone a repo. Design your Prisma schema. Run one command. You have a production-
 
 {% quick-link title="Generators" icon="plugins" href="/docs/generators" description="Reference for every Nestled generator and what it creates under the hood." /%}
 
+{% quick-link title="Automatic Updates" icon="lightbulb" href="/docs/updates" description="Pull template security patches, dependency bumps, and new features into your project with one command — verified, on a branch, no lock-in." /%}
+
 {% quick-link title="Forms" icon="theming" href="https://nestledforms.com" target="_blank" description="Nestled's standalone forms library for building type-safe, validated forms with ease." /%}
 
 {% /quick-links %}

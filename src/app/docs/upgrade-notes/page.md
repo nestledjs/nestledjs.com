@@ -67,10 +67,8 @@ A note marked `priority: ignore` is a historical or decision record, not an acti
 
 ## Applying an upgrade
 
-Today, applying upgrade notes is a manual review: read forward from your last-applied note, apply or adapt each one per its `delivery` mode, honor any `skipIf`, and run the listed `verification` commands.
+The fastest path is the automated updater — see [Automatic Updates](/docs/updates). Run `npx @nestledjs/upgrades apply` and it pulls every change that's new to your project onto a branch, applies clean patches with a 3-way merge, runs your tests, and commits (or opens a pull request). Anything that collides with code you've customized is rolled back and reported as **blocked**, with the note's `intent` as your guide to adapting it by hand or handing it to a coding agent.
 
-{% callout title="Automated upgrader" %}
-An automated upgrader that reads these notes and applies clean changes across projects (producing agent handoffs for anything that needs adaptation) is in development. It is not yet publicly available — this page will be updated when it ships. For now, the notes themselves are the contract, and they carry everything you need to apply a change by hand.
-{% /callout %}
+You can also apply notes manually: read forward from your last-applied note, apply or adapt each one per its `delivery` mode, honor any `skipIf`, and run the listed `verification` commands. Either way, the notes themselves are the contract — they carry everything you need to apply a change.
 
 The full authoring contract for these notes lives in your project at `.nestled-updates/UPGRADER-CONTRACT.md`.

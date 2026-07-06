@@ -277,6 +277,17 @@ Or for Docker-based deployments:
     docker push registry.example.com/my-app:${{ github.sha }}
 ```
 
+### Stay current with the template in CI
+
+You can also run the [automatic updater](/docs/updates) on a schedule so template security patches and dependency bumps reach you as reviewable pull requests instead of manual work:
+
+```yaml
+- name: Check for Nestled template updates
+  run: npx @nestledjs/upgrades apply --pr
+```
+
+Because `apply` works on a dedicated branch, runs your tests, and opens a PR (rolling back anything that collides with your customizations), it's safe to wire into a scheduled workflow. See [Automatic Updates](/docs/updates) for the full flow.
+
 ---
 
 ## Production checklist
