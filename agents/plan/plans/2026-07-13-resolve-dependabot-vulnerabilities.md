@@ -16,14 +16,15 @@ the lockfile — with `pnpm build` succeeding and the site rendering normally.
 As of planning there are **16 open alerts** (the issue said 15; one moderate `js-yaml`
 alert was added after filing). They collapse into just **four packages**:
 
-| Package | Sev(s) | Locked version | Fix version | How it's pulled |
-|---|---|---|---|---|
-| `next` | 7 high, 4 med, 2 low (13 alerts) | `15.5.12` | ≥ **15.5.18** | direct dep (`^15.0.0`) |
-| `shell-quote` | 1 **critical** (GHSA-w7jw-789q-3m8p) | `1.8.3` | `1.8.4` | transitive via `concurrently@9.2.1` (devDep) |
-| `postcss` | 1 med (GHSA-qx2v-qp2m-jg93) | `8.4.31` (bundled by `next`) + `8.5.6` (via `@tailwindcss/postcss`) | `8.5.10` | transitive |
-| `js-yaml` | 1 med (GHSA-h67p-54hq-rp68) | `4.1.1` | `4.2.0` | direct dep (`^4.1.1`) |
+| Package       | Sev(s)                               | Locked version                                                      | Fix version   | How it's pulled                              |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------- | ------------- | -------------------------------------------- |
+| `next`        | 7 high, 4 med, 2 low (13 alerts)     | `15.5.12`                                                           | ≥ **15.5.18** | direct dep (`^15.0.0`)                       |
+| `shell-quote` | 1 **critical** (GHSA-w7jw-789q-3m8p) | `1.8.3`                                                             | `1.8.4`       | transitive via `concurrently@9.2.1` (devDep) |
+| `postcss`     | 1 med (GHSA-qx2v-qp2m-jg93)          | `8.4.31` (bundled by `next`) + `8.5.6` (via `@tailwindcss/postcss`) | `8.5.10`      | transitive                                   |
+| `js-yaml`     | 1 med (GHSA-h67p-54hq-rp68)          | `4.1.1`                                                             | `4.2.0`       | direct dep (`^4.1.1`)                        |
 
 Key facts that make this low-risk:
+
 - **No major-version jump is needed.** Every `next` alert is patched at `15.5.16`, and the
   one incomplete-fix follow-up (`#2`, GHSA-26hh-7cqf-hhc6) at `15.5.18`. The latest 15.x
   release is **`15.5.20`** (npm dist-tag `backport`; `latest` is `16.2.10`, which we
@@ -44,6 +45,7 @@ Key facts that make this low-risk:
 ## Implementation steps
 
 ### 1. Branch
+
 ```shell
 cd "$(git rev-parse --show-toplevel)"
 git checkout develop && git pull
@@ -53,11 +55,13 @@ git checkout -b fix/pir-134-dependabot-vulns
 ### 2. Edit `package.json`
 
 **a.** Raise the two direct-dependency floors:
+
 - `"next": "^15.0.0"` → `"next": "^15.5.20"`
 - `"js-yaml": "^4.1.1"` → `"js-yaml": "^4.2.0"`
 - (devDependencies) `"eslint-config-next": "^15.0.0"` → `"^15.5.20"` so it tracks `next` in lockstep.
 
 **b.** Add two entries to the existing `pnpm.overrides` block (keep the current four):
+
 ```json
 "overrides": {
   "tar": ">=7.5.8",
@@ -76,33 +80,41 @@ git checkout -b fix/pir-134-dependabot-vulns
 > check in step 4 is the guard.
 
 ### 3. Reinstall
+
 ```shell
 pnpm install
 ```
+
 This resolves `next@15.5.20`, applies the overrides, and rewrites `pnpm-lock.yaml`.
 
 Verify the lockfile no longer contains vulnerable versions:
+
 ```shell
 grep -E "shell-quote@1\.8\.[0-3]:|postcss@8\.(4\.|5\.[0-9]:)|next@15\.5\.1[0-7]:|js-yaml@4\.1\." pnpm-lock.yaml
 ```
+
 Expected: **no matches** (all bumped). Confirm the new resolutions are present:
+
 ```shell
 grep -E "next@15\.5\.20:|shell-quote@1\.8\.[4-9]|postcss@8\.5\.1[0-9]|js-yaml@4\.2" pnpm-lock.yaml
 ```
 
 ### 4. Build & verify locally
+
 ```shell
 pnpm build          # validates all routes; must succeed
 pnpm type-check     # tsc --noEmit
 pnpm lint           # next lint
 pnpm audit --audit-level=high   # matches ci:security; expect no high/critical
 ```
+
 Spot-check key pages render in `pnpm dev` (localhost:3001): the docs home `/`, one
 `/docs/<slug>` page, and confirm the Markdoc code-fence rendering (`Fence`) and search still
 work — these exercise the `@markdoc/next.js` + `next` + `postcss`/`tailwindcss` paths that
 the bumps touch.
 
 ### 5. Confirm alert closure
+
 After the PR merges and Dependabot re-scans, the open-alert count should reach **0**. If any
 alert cannot be auto-resolved (e.g. no non-major fix), dismiss it in the GitHub Security tab
 with a stated reason and note that reason in the PR — do **not** leave it silently open.
