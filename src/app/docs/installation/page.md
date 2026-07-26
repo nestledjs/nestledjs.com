@@ -99,19 +99,20 @@ The key variables you may want to customize in `.env`:
 
 ### Core settings
 
-| Variable     | Default                 | Description                                      |
-| ------------ | ----------------------- | ------------------------------------------------ |
-| `APP_NAME`   | `your-app-name`         | Application name, used in emails and 2FA         |
-| `PORT`       | `3000`                  | API server port                                  |
-| `JWT_SECRET` | `JWT_SECRET`            | **Change this** — secret for signing auth tokens |
-| `API_URL`    | `http://localhost:3000` | API base URL                                     |
-| `SITE_URL`   | `http://localhost:4200` | Frontend base URL                                |
+| Variable     | Default                 | Description                                                                                                                                      |
+| ------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `APP_NAME`   | `your-app-name`         | Application name, used in emails and 2FA                                                                                                         |
+| `PORT`       | `3000`                  | API server port                                                                                                                                  |
+| `JWT_SECRET` | `JWT_SECRET`            | **Change this** — secret for signing auth tokens                                                                                                 |
+| `API_URL`    | `http://localhost:3000` | API origin (scheme + host + port). Origin only — no path and no `/api` suffix; the app appends `/api`. An invalid value fails the API at startup |
+| `SITE_URL`   | `http://localhost:4200` | Frontend base URL                                                                                                                                |
 
 ### Database
 
-| Variable       | Default                                            | Description                  |
-| -------------- | -------------------------------------------------- | ---------------------------- |
-| `DATABASE_URL` | `postgresql://prisma:prisma@localhost:5432/prisma` | PostgreSQL connection string |
+| Variable       | Default                                            | Description                                                                                                                                                            |
+| -------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL` | `postgresql://prisma:prisma@localhost:5432/prisma` | PostgreSQL connection string used by the running app                                                                                                                   |
+| `DIRECT_URL`   | Not set (falls back to `DATABASE_URL`)             | Optional direct (non-pooled) URL used by the Prisma CLI for migrations. Leave unset locally; set it to point migrations at a remote DB without swapping `DATABASE_URL` |
 
 ### Email
 

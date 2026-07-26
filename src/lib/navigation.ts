@@ -19,6 +19,7 @@ export const navigation = [
       { title: 'Email', href: '/docs/email' },
       { title: 'Storage', href: '/docs/storage' },
       { title: 'Subscriptions', href: '/docs/subscriptions' },
+      { title: 'MCP Server', href: '/docs/mcp' },
       { title: 'AI Docs', href: '/docs/ai-docs' },
     ],
   },
