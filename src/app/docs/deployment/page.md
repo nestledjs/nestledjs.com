@@ -60,16 +60,16 @@ You can configure build settings and custom domains at the same time before trig
 
 Set these in your Railway service settings:
 
-| Variable           | Value                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NODE_ENV`         | `production`                                                                                                                                                              |
-| `PORT`             | `3000` (Railway sets this automatically)                                                                                                                                  |
-| `JWT_SECRET`       | A strong random string — generate with `openssl rand -hex 64`                                                                                                             |
-| `API_URL`          | Your Railway API URL (e.g., `https://api.yourdomain.com`)                                                                                                                 |
-| `SITE_URL`         | Your Railway web URL (e.g., `https://yourdomain.com`)                                                                                                                     |
-| `DATABASE_URL`     | Railway provides this from the PostgreSQL addon                                                                                                                           |
-| `REDIS_URL`        | Railway provides this from the Redis addon                                                                                                                                |
-| `TRUST_PROXY_HOPS` | `1` on Railway (Heroku/Fly too) — number of proxies in front of the API. Required for correct client-IP handling; see [Signup abuse protection](#signup-abuse-protection) |
+| Variable           | Value                                                                                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NODE_ENV`         | `production`                                                                                                                                                                                           |
+| `PORT`             | `3000` (Railway sets this automatically)                                                                                                                                                               |
+| `JWT_SECRET`       | A strong random string — generate with `openssl rand -hex 64`                                                                                                                                          |
+| `API_URL`          | Your Railway API URL (e.g., `https://api.yourdomain.com`)                                                                                                                                              |
+| `SITE_URL`         | Your Railway web URL (e.g., `https://yourdomain.com`)                                                                                                                                                  |
+| `DATABASE_URL`     | Railway provides this from the PostgreSQL addon                                                                                                                                                        |
+| `REDIS_URL`        | Railway provides this from the Redis addon                                                                                                                                                             |
+| `TRUST_PROXY_HOPS` | `1` on Railway (Heroku/Fly too), on the **api** service only — number of proxies in front of the API. Required for correct client-IP handling; see [Signup abuse protection](#signup-abuse-protection) |
 
 ### Email configuration
 
@@ -128,14 +128,16 @@ Turnstile is optional — like Stripe, with no key configured it is simply disab
 
 Sane defaults — leave these unless you need to change them. All on the **api** service:
 
-| Variable                  | Default          | Purpose                                           |
-| ------------------------- | ---------------- | ------------------------------------------------- |
-| `SIGNUP_THROTTLE_ENABLED` | on in production | Master switch for the signup rate limit           |
-| `SIGNUP_THROTTLE_LIMIT`   | `3`              | Max signup-surface attempts per window, per IP    |
-| `SIGNUP_THROTTLE_TTL`     | `3600`           | Rate-limit window, in seconds                     |
-| `SIGNUP_REQUIRE_MX`       | on in production | Reject emails whose domain publishes no MX record |
-| `SIGNUP_MX_TIMEOUT_MS`    | `3000`           | MX lookup timeout, in milliseconds                |
-| `SIGNUP_BLOCK_DISPOSABLE` | `true`           | Block known disposable-email domains              |
+| Variable                  | Default        | Purpose                                           |
+| ------------------------- | -------------- | ------------------------------------------------- |
+| `SIGNUP_THROTTLE_ENABLED` | `true` in prod | Master switch for the signup rate limit           |
+| `SIGNUP_THROTTLE_LIMIT`   | `3`            | Max signup-surface attempts per window, per IP    |
+| `SIGNUP_THROTTLE_TTL`     | `3600`         | Rate-limit window, in seconds                     |
+| `SIGNUP_REQUIRE_MX`       | `true` in prod | Reject emails whose domain publishes no MX record |
+| `SIGNUP_MX_TIMEOUT_MS`    | `3000`         | MX lookup timeout, in milliseconds                |
+| `SIGNUP_BLOCK_DISPOSABLE` | `true`         | Block known disposable-email domains              |
+
+The boolean vars (`SIGNUP_THROTTLE_ENABLED`, `SIGNUP_REQUIRE_MX`, `SIGNUP_BLOCK_DISPOSABLE`) are set with `true` or `false`. "`true` in prod" means the default is on only when `NODE_ENV=production`; set the variable explicitly to override in either direction.
 
 ### Storage configuration (if using file uploads)
 
