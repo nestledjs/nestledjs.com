@@ -60,16 +60,17 @@ You can configure build settings and custom domains at the same time before trig
 
 Set these in your Railway service settings:
 
-| Variable           | Value                                                                                                                                                                                                  |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NODE_ENV`         | `production`                                                                                                                                                                                           |
-| `PORT`             | `3000` (Railway sets this automatically)                                                                                                                                                               |
-| `JWT_SECRET`       | A strong random string — generate with `openssl rand -hex 64`                                                                                                                                          |
-| `API_URL`          | Your Railway API URL (e.g., `https://api.yourdomain.com`)                                                                                                                                              |
-| `SITE_URL`         | Your Railway web URL (e.g., `https://yourdomain.com`)                                                                                                                                                  |
-| `DATABASE_URL`     | Railway provides this from the PostgreSQL addon                                                                                                                                                        |
-| `REDIS_URL`        | Railway provides this from the Redis addon                                                                                                                                                             |
-| `TRUST_PROXY_HOPS` | `1` on Railway (Heroku/Fly too), on the **api** service only — number of proxies in front of the API. Required for correct client-IP handling; see [Signup abuse protection](#signup-abuse-protection) |
+| Variable           | Value                                                                                                                                                                                                                                                                                                                   |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`         | `production`                                                                                                                                                                                                                                                                                                            |
+| `PORT`             | `3000` (Railway sets this automatically)                                                                                                                                                                                                                                                                                |
+| `JWT_SECRET`       | A strong random string — generate with `openssl rand -hex 64`                                                                                                                                                                                                                                                           |
+| `API_URL`          | Your Railway API **origin** (e.g., `https://api.yourdomain.com`) — scheme + host + optional port only. Do **not** include a path or the `/api` suffix; the app appends `/api` itself. An invalid value (a path, or a bare `localhost:undefined`) fails the API at startup rather than producing broken URLs at runtime. |
+| `SITE_URL`         | Your Railway web URL (e.g., `https://yourdomain.com`)                                                                                                                                                                                                                                                                   |
+| `DATABASE_URL`     | Railway provides this from the PostgreSQL addon — the **pooled** connection your running app queries through                                                                                                                                                                                                            |
+| `DIRECT_URL`       | Optional. The **direct** (non-pooled) Postgres URL used by the Prisma CLI for migrations. Not needed by the running app; set it wherever you run `prisma migrate deploy`. See [Database initialization](#database-initialization)                                                                                       |
+| `REDIS_URL`        | Railway provides this from the Redis addon                                                                                                                                                                                                                                                                              |
+| `TRUST_PROXY_HOPS` | `1` on Railway (Heroku/Fly too), on the **api** service only — number of proxies in front of the API. Required for correct client-IP handling; see [Signup abuse protection](#signup-abuse-protection)                                                                                                                  |
 
 ### Email configuration
 
@@ -189,32 +190,35 @@ Railway's PostgreSQL database is private by default. To connect from your local 
 
 **Step 4 — Deploy migrations to production**
 
-In your local `.env`, comment out the local `DATABASE_URL` and add the Railway external URL:
+Migrations are **not** run automatically on deploy — the Railway build and start commands (`build:api`, `start:api`) only generate the Prisma client and boot the server. Applying migrations is a deliberate step you run whenever your schema changes.
+
+You no longer swap `DATABASE_URL` for this. Instead, set `DIRECT_URL` to the Railway external URL from Step 3 and leave `DATABASE_URL` pointing at your local database:
 
 ```text
-# DATABASE_URL="postgresql://prisma:prisma@localhost:5432/prisma"
-DATABASE_URL="postgresql://postgres:<PASSWORD>@<TCP_HOST>:<TCP_PORT>/railway"
+# .env — DATABASE_URL stays as-is (your local app keeps using it); just add DIRECT_URL
+DATABASE_URL="postgresql://prisma:prisma@localhost:5432/prisma"
+DIRECT_URL="postgresql://postgres:<PASSWORD>@<TCP_HOST>:<TCP_PORT>/railway"
 ```
 
-Then apply all pending migrations to production:
+The Prisma CLI prefers `DIRECT_URL` when it's set (see `prisma.config.ts`), so migration commands target Railway while your app keeps using the local `DATABASE_URL`. Apply all pending migrations:
 
 ```shell
 npx prisma migrate deploy
 ```
 
-Once that succeeds, seed your production database:
+This is the only step you repeat on future schema changes — no more commenting URLs in and out.
+
+Seeding is a one-time bootstrap for a brand-new production database. Unlike the migrate commands, the seed script connects through `DATABASE_URL` directly, so point it at Railway for just that one command:
 
 ```shell
-pnpm prisma:seed
+DATABASE_URL="postgresql://postgres:<PASSWORD>@<TCP_HOST>:<TCP_PORT>/railway" pnpm prisma:seed
 ```
 
-Then restore your `.env` to the local URL.
-
 {% callout type="warning" title="Never run migrate dev or migrate reset against production" %}
-`prisma migrate dev` and `prisma migrate reset` are destructive — they can drop and recreate your database. Always double-check which `DATABASE_URL` is active in your `.env` before running any migration command. Only `prisma migrate deploy` is safe to run against production.
+`prisma migrate dev` and `prisma migrate reset` are destructive — they can drop and recreate your database. The template guards against this: `prisma.config.ts` blocks `migrate dev` and `migrate reset` whenever the resolved connection (`DIRECT_URL` if set, otherwise `DATABASE_URL`) is not localhost. Only `prisma migrate deploy` is meant to run against production.
 {% /callout %}
 
-You can disable the TCP proxy after running migrations to reduce the attack surface, and re-enable it whenever you need to apply future migrations.
+You can unset `DIRECT_URL` when you're done — it only affects Prisma CLI commands, never your running app. You can also disable the TCP proxy after running migrations to reduce the attack surface, and re-enable it whenever you need to apply future migrations.
 
 ### Custom domains
 
@@ -278,6 +282,8 @@ The template includes a GitHub Actions workflow at `.github/workflows/ci.yml` th
 2. Sets up pnpm and Node.js with caching
 3. Installs dependencies
 4. Runs `nx affected -t lint test build` — only tests what changed
+
+An optional SonarCloud scan runs at the end **only when a `SONAR_TOKEN` secret is configured** on the repository. Fresh clones without it pass CI unchanged (the workflow logs that the scan was skipped); add a `SONAR_TOKEN` repository secret to enable code-quality analysis automatically — no workflow edit needed.
 
 ### Services
 
