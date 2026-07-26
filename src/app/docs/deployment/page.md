@@ -60,15 +60,16 @@ You can configure build settings and custom domains at the same time before trig
 
 Set these in your Railway service settings:
 
-| Variable       | Value                                                         |
-| -------------- | ------------------------------------------------------------- |
-| `NODE_ENV`     | `production`                                                  |
-| `PORT`         | `3000` (Railway sets this automatically)                      |
-| `JWT_SECRET`   | A strong random string — generate with `openssl rand -hex 64` |
-| `API_URL`      | Your Railway API URL (e.g., `https://api.yourdomain.com`)     |
-| `SITE_URL`     | Your Railway web URL (e.g., `https://yourdomain.com`)         |
-| `DATABASE_URL` | Railway provides this from the PostgreSQL addon               |
-| `REDIS_URL`    | Railway provides this from the Redis addon                    |
+| Variable           | Value                                                                                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NODE_ENV`         | `production`                                                                                                                                                                                           |
+| `PORT`             | `3000` (Railway sets this automatically)                                                                                                                                                               |
+| `JWT_SECRET`       | A strong random string — generate with `openssl rand -hex 64`                                                                                                                                          |
+| `API_URL`          | Your Railway API URL (e.g., `https://api.yourdomain.com`)                                                                                                                                              |
+| `SITE_URL`         | Your Railway web URL (e.g., `https://yourdomain.com`)                                                                                                                                                  |
+| `DATABASE_URL`     | Railway provides this from the PostgreSQL addon                                                                                                                                                        |
+| `REDIS_URL`        | Railway provides this from the Redis addon                                                                                                                                                             |
+| `TRUST_PROXY_HOPS` | `1` on Railway (Heroku/Fly too), on the **api** service only — number of proxies in front of the API. Required for correct client-IP handling; see [Signup abuse protection](#signup-abuse-protection) |
 
 ### Email configuration
 
@@ -103,6 +104,40 @@ Set up the Stripe webhook endpoint in your Stripe dashboard pointing to `{API_UR
 | `GITHUB_OAUTH_CLIENT_SECRET` | From GitHub Developer Settings |
 
 Set callback URLs to `{API_URL}/api/auth/google/callback` and `{API_URL}/api/auth/github/callback`.
+
+### Signup abuse protection
+
+The template ships an abuse gate on the **unauthenticated signup surface** — registration, forgot-password, and resend-verification. It combines a per-IP rate limit, optional Cloudflare Turnstile (CAPTCHA), MX-record validation, and disposable-domain blocking. It does **not** affect login or OAuth/SSO sign-in — only the account-creation and password-recovery forms.
+
+#### Trust the proxy (required on Railway)
+
+The rate limit keys on the client IP. Behind Railway's proxy, `TRUST_PROXY_HOPS` **must** be set to `1` on the **api** service — otherwise every visitor appears to share Railway's router IP, and the limit throttles all users together, locking everyone out of register / forgot-password / resend after a few requests. The API logs `[TrustProxy] Trusting 1 proxy hop(s)` at boot; if instead it warns `TRUST_PROXY_HOPS is 0 in production`, it isn't set. (Railway, Heroku, and Fly each put exactly one proxy in front of the API, so `1` is correct.)
+
+#### Cloudflare Turnstile (recommended before opening public signups)
+
+Turnstile is optional — like Stripe, with no key configured it is simply disabled and the widget renders nothing. To enable it, create a widget in the Cloudflare dashboard (**Turnstile → Add widget**, mode **Managed**, and leave **pre-clearance off**) for your web app's hostname, then set **both** keys together:
+
+| Variable                  | Service | Value                                         |
+| ------------------------- | ------- | --------------------------------------------- |
+| `TURNSTILE_SECRET_KEY`    | api     | Turnstile secret key (server-side siteverify) |
+| `VITE_TURNSTILE_SITE_KEY` | web     | Turnstile site key (public)                   |
+
+⚠️ `VITE_TURNSTILE_SITE_KEY` is **build-time** — it is baked into the web bundle via `import.meta.env`, so the web service must **rebuild** to pick it up (Railway rebuilds automatically when the variable changes). If you set the secret on `api` but not the site key on `web` (or the web app hasn't rebuilt), the widget never renders, no token is sent, and **every signup fails validation**. Always set both together.
+
+#### Optional tuning
+
+Sane defaults — leave these unless you need to change them. All on the **api** service:
+
+| Variable                  | Default        | Purpose                                           |
+| ------------------------- | -------------- | ------------------------------------------------- |
+| `SIGNUP_THROTTLE_ENABLED` | `true` in prod | Master switch for the signup rate limit           |
+| `SIGNUP_THROTTLE_LIMIT`   | `3`            | Max signup-surface attempts per window, per IP    |
+| `SIGNUP_THROTTLE_TTL`     | `3600`         | Rate-limit window, in seconds                     |
+| `SIGNUP_REQUIRE_MX`       | `true` in prod | Reject emails whose domain publishes no MX record |
+| `SIGNUP_MX_TIMEOUT_MS`    | `3000`         | MX lookup timeout, in milliseconds                |
+| `SIGNUP_BLOCK_DISPOSABLE` | `true`         | Block known disposable-email domains              |
+
+The boolean vars (`SIGNUP_THROTTLE_ENABLED`, `SIGNUP_REQUIRE_MX`, `SIGNUP_BLOCK_DISPOSABLE`) are set with `true` or `false`. "`true` in prod" means the default is on only when `NODE_ENV=production`; set the variable explicitly to override in either direction.
 
 ### Storage configuration (if using file uploads)
 
