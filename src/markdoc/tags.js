@@ -1,6 +1,7 @@
 import { Callout } from '@/components/Callout'
 import { QuickLink, QuickLinks } from '@/components/QuickLinks'
 import { UpdatesSignup } from '@/components/UpdatesSignup'
+import { Version } from '@/components/Version'
 
 const tags = {
   callout: {
@@ -36,6 +37,17 @@ const tags = {
   'updates-signup': {
     selfClosing: true,
     render: UpdatesSignup,
+  },
+  version: {
+    selfClosing: true,
+    render: Version,
+    attributes: {
+      added: { type: String },
+      changed: { type: String },
+      removed: { type: String },
+      deprecated: { type: String },
+      note: { type: String },
+    },
   },
   'quick-link': {
     selfClosing: true,

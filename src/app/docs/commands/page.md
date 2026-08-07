@@ -33,7 +33,7 @@ Under the hood, it runs five steps in sequence:
 1. **`pnpm prisma:generate`** — Regenerates the Prisma client from your current schema
 2. **`nx g @nestledjs/generators:crud`** — Reads your Prisma schema and regenerates CRUD resolvers for every model, with auth guards applied based on `@crudAuth` comments
 3. **`nx g @nestledjs/generators:models`** — Generates TypeScript and GraphQL models from the Prisma DMMF (Data Model Meta Format)
-4. **`nx g @nestledjs/generators:custom`** — Creates custom module boilerplate for any new models (never overwrites existing custom code)
+4. **`nx g @nestledjs/generators:custom`** — Maintains the custom API library and its barrel files (never overwrites existing custom code)
 5. **`nx g @nestledjs/generators:sdk`** — Generates GraphQL fragments, queries, and mutations for every model, then runs codegen to produce typed TypeScript operations
 
 After running `db-update`, you'll typically also want to push your schema changes to the database:
@@ -84,15 +84,16 @@ During development, `pnpm prisma db push` is the fastest way to apply schema cha
 
 ## Code generation
 
-| Command                             | Description                                                 |
-| ----------------------------------- | ----------------------------------------------------------- |
-| `pnpm db-update`                    | Full pipeline: Prisma client + CRUD + models + custom + SDK |
-| `nx g @nestledjs/generators:crud`   | Regenerate CRUD resolvers from Prisma schema                |
-| `nx g @nestledjs/generators:models` | Generate TypeScript and GraphQL models from Prisma schema   |
-| `nx g @nestledjs/generators:custom` | Add custom modules for new Prisma models                    |
-| `nx g @nestledjs/generators:sdk`    | Generate GraphQL operations and typed SDK output            |
-| `pnpm sdk`                          | Run GraphQL codegen once                                    |
-| `pnpm sdk watch`                    | Run GraphQL codegen in watch mode                           |
+| Command                                            | Description                                                      |
+| -------------------------------------------------- | ---------------------------------------------------------------- |
+| `pnpm db-update`                                   | Full pipeline: Prisma client + CRUD + models + custom + SDK      |
+| `nx g @nestledjs/generators:crud`                  | Regenerate CRUD resolvers from Prisma schema                     |
+| `nx g @nestledjs/generators:models`                | Generate TypeScript and GraphQL models from Prisma schema        |
+| `nx g @nestledjs/generators:custom`                | Maintain the custom API library and its barrels                  |
+| `nx g @nestledjs/generators:model-extension Model` | Scaffold a resolver module for one model (2.0.0+, run on demand) |
+| `nx g @nestledjs/generators:sdk`                   | Generate GraphQL operations and typed SDK output                 |
+| `pnpm sdk`                                         | Run GraphQL codegen once                                         |
+| `pnpm sdk watch`                                   | Run GraphQL codegen in watch mode                                |
 
 ---
 
