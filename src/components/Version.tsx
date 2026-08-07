@@ -33,13 +33,13 @@ export function Version({
   removed,
   deprecated,
   note,
-}: {
+}: Readonly<{
   added?: string
   changed?: string
   removed?: string
   deprecated?: string
   note?: string
-}) {
+}>) {
   const entries = (
     [
       ['added', added],
@@ -54,7 +54,7 @@ export function Version({
   }
 
   return (
-    <span className="not-prose my-2 inline-flex flex-wrap items-center gap-2">
+    <span className="not-prose inline-flex flex-wrap items-center gap-2 align-middle">
       {entries.map(([kind, version]) => (
         <span
           key={kind}
