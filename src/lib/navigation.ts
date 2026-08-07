@@ -28,6 +28,7 @@ export const navigation = [
     links: [
       { title: 'Architecture', href: '/docs/architecture' },
       { title: 'Generators', href: '/docs/generators' },
+      { title: 'Migrating to 2.0', href: '/docs/migrating-to-2' },
       { title: 'Generators Changelog', href: '/docs/generators-changelog' },
       { title: 'Automatic Updates', href: '/docs/updates' },
       { title: 'Upgrade Notes', href: '/docs/upgrade-notes' },

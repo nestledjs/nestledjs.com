@@ -172,9 +172,11 @@ Auth levels:
 
 Prisma `Json` fields are emitted as `GraphQLJSON`, so object, array, and scalar JSON values are valid GraphQL values.
 
-### Step 4: Generate custom API modules
+### Step 4: Maintain the custom API library
 
-`nx g @nestledjs/generators:custom` creates a custom module (service + resolver + NestJS module) for any Prisma model that doesn't already have one. Existing modules are never overwritten — this step is purely additive.
+`nx g @nestledjs/generators:custom` creates and maintains the custom API library at `libs/api/custom/` — the library and its barrel files. It does not read the Prisma schema, and your existing extensions are never overwritten.
+
+As of generators 2.0.0 this step no longer emits a service + resolver + module shell for every Prisma model. Generated CRUD registers itself through `ApiGeneratedCrudFeatureModule`, so those shells served no purpose. When a specific model needs custom behavior, scaffold it deliberately with `nx g @nestledjs/generators:model-extension <Model>`. See [Migrating to 2.0](/docs/migrating-to-2) if you are coming from 1.1.x.
 
 ### Step 5: Generate the GraphQL SDK
 
