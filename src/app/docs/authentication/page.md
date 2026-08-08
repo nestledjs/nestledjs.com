@@ -288,7 +288,9 @@ The `RequirePermission` component conditionally renders children based on the us
 
 ### Apollo Client organization header
 
-The Apollo client automatically includes the active organization ID with every GraphQL request via the `X-Organization-ID` header. The `activeOrganizationId` is synced to localStorage whenever the user switches organizations.
+The Apollo client automatically includes the active organization ID with every GraphQL request via the `X-Organization-ID` header. `AuthContext` syncs `activeOrganizationId` to local storage whenever the user switches organizations.
+
+The bundled organization switcher reloads the page after a successful switch so Apollo data, route loaders, and the active membership/permission context are rebuilt under the new organization. If you implement switching without a reload, you must explicitly clear or evict organization-scoped cached data and refresh that context after updating the header source. See [Organization switching](/docs/tenant-isolation#organization-switching) for the complete sequence.
 
 ---
 

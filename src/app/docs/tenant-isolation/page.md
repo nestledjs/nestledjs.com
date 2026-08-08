@@ -114,7 +114,15 @@ async someServiceMethod(organizationContext: OrganizationContext) {
 
 ## Frontend integration
 
-Set the active organization in your GraphQL requests:
+### Organization switching
+
+Switching organizations changes three pieces of state that must stay aligned:
+
+1. **Server state** — `switchActiveOrganization` validates membership and updates the user's `activeOrganizationId`.
+2. **Request context** — `activeOrganizationId` in local storage supplies the `X-Organization-ID` header on subsequent Apollo requests.
+3. **Client state** — cached queries, route-loader data, and the active membership/permission context must be rebuilt for the new organization.
+
+The mutation is:
 
 ```graphql
 mutation {
@@ -125,7 +133,17 @@ mutation {
 }
 ```
 
-Or override per-request with a header:
+The template's `AuthContext.switchOrganization` updates the user state after the mutation and syncs the new ID to local storage. The bundled `OrganizationSwitcher` then reloads the page. That reload is intentional: it discards the in-memory Apollo cache and reconstructs route loaders, organization data, and permissions with the new header.
+
+{% callout type="warning" title="Treat an organization switch as a cache boundary" %}
+Never leave organization-scoped results from the previous organization in the active Apollo cache. Stale teams, members, invoices, or permissions can make the switch appear broken and, more importantly, show data from the wrong tenant.
+{% /callout %}
+
+If you replace the page reload with a fully client-side transition, preserve the same boundary explicitly: update the local-storage/header source before issuing new queries, evict or reset all organization-scoped Apollo data, and refresh the active user, membership, permission, and route-loader context. A broad `client.resetStore()` is one option; targeted eviction is also valid if every organization-scoped field is covered. A reload and a cache reset are alternative strategies, not two required consecutive steps.
+
+### Per-request header override
+
+For API clients or a request that intentionally targets a different organization without changing the user's active organization, set the header directly:
 
 ```typescript
 const client = new ApolloClient({
