@@ -34,7 +34,7 @@ The base Nestled template has the pieces a blog should build on:
 - **Custom plugin resolvers** under `libs/api/custom/src/lib/plugins/*`
 - **Safe plugin exports** from `libs/api/custom/src/lib/plugins/index.ts`
 - **App module wiring** in `apps/api/src/app.module.ts`
-- **GraphQL SDK operations** in `libs/shared/sdk/src/graphql/*`
+- **Application-owned GraphQL SDK operations** in `libs/shared/sdk/src/graphql/*`
 - **React Router v7 routes** registered manually in `apps/web/app/routes.tsx`
 - **Storage integration** through `StoredFile` for post hero images and future inline media
 
@@ -83,7 +83,7 @@ Nestled Template uses:
 - Custom API plugins in `libs/api/custom/src/lib/plugins`.
 - React Router v7 web app in `apps/web`.
 - Manual route registration in `apps/web/app/routes.tsx`.
-- Generated GraphQL SDK operations in `libs/shared/sdk/src/graphql`.
+- Application-owned GraphQL SDK operations in `libs/shared/sdk/src/graphql`.
 - Storage through `StoredFile`.
 - Auth guards from `@nestled-template/api/utils`.
 
@@ -101,7 +101,7 @@ This regenerates Prisma, generated CRUD, models, schema, and SDK types.
 
 Add blog models near the other alphabetical Prisma models in `libs/api/prisma/src/lib/schemas/schema.prisma`.
 
-Use normal generated CRUD for these models. Generated admin CRUD should remain admin-only by default, so do not add `@skipCrud` and do not relax generated CRUD auth with `@crudAuth` for public access. Public reads must go through custom resolvers that explicitly filter to published posts.
+Use normal generated CRUD for these models as the admin management surface, so do not add `@skipCrud`. Generated CRUD is unconditionally admin-only in generators 3. Public reads must go through custom resolvers that explicitly filter to published posts.
 
 ### Prisma Schema
 

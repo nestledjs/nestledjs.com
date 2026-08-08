@@ -12,6 +12,119 @@ For what each generator does, see the [Generators reference](/docs/generators). 
 
 ---
 
+## 3.0.3 {% .no-toc %}
+
+**Patch — align SDK generation with the admin-only boundary.**
+
+### Fixed
+
+**`sdk` no longer scaffolds public copies of generated admin CRUD operations.** The generator recreates only `libs/shared/sdk/src/__admin/<model>` from the Prisma schema. Per-model and feature documents under `libs/shared/sdk/src/graphql/` are application-owned and are never created or deleted in response to Prisma models.
+
+The shared `graphql/core/core.graphql` document is still generated for the uptime query and paging fragment, and GraphQL Code Generator still compiles both the application-owned and admin document trees.
+
+### Upgrading
+
+```shell
+pnpm add -E @nestledjs/generators@3.0.3
+nx g @nestledjs/generators:sdk
+```
+
+Then audit the preserved `libs/shared/sdk/src/graphql/` tree. Earlier versions may have scaffolded per-model documents that call generated CRUD root fields: `<model>`, `<models>`, `<models>Count`, `create<Model>`, `update<Model>`, and `delete<Model>`. Delete those legacy administrative copies and keep only documents for explicit application resolvers.
+
+Do not create empty `.graphql` placeholders; empty GraphQL documents are invalid. Organize real operations by feature or model, then run `pnpm sdk`.
+
+{% callout type="warning" title="The patch preserves existing files intentionally" %}
+3.0.3 stops creating and deleting public per-model documents, but it does not remove legacy files from your application-owned tree. That cleanup requires review because the generator cannot distinguish an old scaffold from a purpose-built operation you own.
+{% /callout %}
+
+---
+
+## 3.0.2 {% .no-toc %}
+
+**Patch — strict TypeScript compatibility.**
+
+### Fixed
+
+**`crud` compiles relation-filter normalization with strict index-signature access.** Generated data access now uses bracket notation for keys on its generic filter map. Workspaces with `noPropertyAccessFromIndexSignature` enabled no longer receive TS4111 errors after regeneration.
+
+Upgrade to 3.0.3 and rerun `pnpm db-update` to regenerate the corrected data-access service. No schema or runtime behavior changes are required for this patch.
+
+---
+
+## 3.0.1 {% .no-toc %}
+
+**Patch — restore bounded Prisma filter composition and ES2022 compatibility.**
+
+### Fixed
+
+**Typed model filters once again support logical composition.** `AND`, `OR`, and `NOT` now point to the next generated filter depth rather than recursively to their own type. Logical composition and relation traversal share the same `filterDepth` budget, and the deepest input remains scalars-only.
+
+Scalar filters now include `not`. To-one relation filters include `is` and `isNot`, including `is: null`, while retaining the direct nested shape emitted since 1.1.5. Generated data access normalizes that shorthand into Prisma's relation-filter form. Direct predicates combined with a non-null `is` are joined with `AND`; the contradictory combination of direct predicates and `is: null` fails with `BadRequestException` before Prisma runs.
+
+**Legacy list-filter overrides compile with ES2022 class-field semantics.** Generated `List<Model>Input.filters` properties receive an explicit `undefined` initializer, preventing TS2612 when a consumer still has the old `CorePagingInput.filters` declaration and `useDefineForClassFields` enabled. Consumers should still remove that opaque base field; changing the workspace-wide TypeScript setting is unnecessary.
+
+### Upgrading
+
+Upgrade to 3.0.3 and run the complete generation pipeline:
+
+```shell
+pnpm add -E @nestledjs/generators@3.0.3
+pnpm db-update
+```
+
+Audit preserved application documents and runtime-built variables that use `AND`, `OR`, `NOT`, scalar `not`, or relation `is`/`isNot`. Generators 1.1.5 through 3.0.0 did not expose those fields, so a TypeScript success alone did not prove that GraphQL would accept them at runtime.
+
+---
+
+## 3.0.0 {% .no-toc %}
+
+**Major — security boundary and breaking authorization change.** Generated CRUD is now an admin-only management surface. The `@crudAuth` escape hatch has been removed rather than allowing generated operations to be lowered to user, public, or custom access levels.
+
+{% callout type="warning" title="Do not remove @crudAuth until you inventory it" %}
+Generator 3 rejects every schema that still contains `@crudAuth`. Before deleting those annotations, record each operation that was set to `user`, `public`, or a custom level and replace it with an explicit application resolver. Otherwise those client workflows will lose access after the upgrade.
+
+Follow the complete [Migrating to 3.0 guide](/docs/migrating-to-3).
+{% /callout %}
+
+### Changed
+
+**Every generated resolver is admin-only at class level.** Generated resolver classes now declare both `@AdminOnly()` and `@UseGuards(GqlAuthAdminGuard)`. Per-operation access-level and guard generation is gone. This makes generated CRUD's security boundary uniform and directly auditable.
+
+Generated CRUD accepts broad generated create/update inputs, typed administrative filters, and recursively compiles requested GraphQL relations into Prisma selections. Those capabilities are useful to the admin data browser, but they are not a safe substitute for application-specific authorization, tenancy rules, field allowlists, and business validation.
+
+**The recursive selection compiler is now private generated code.** It is emitted as a non-exported helper inside `ApiCrudDataAccessService`; generated CRUD no longer imports `createSelect` from the consumer's core-helper barrel. User-facing resolvers should use explicit Prisma `where` and `select` clauses instead of composing the administrative data-access service.
+
+**Per-model auth metadata has been removed.** Generated `database-models.ts` files no longer include the obsolete `auth` object that supported relation-traversal authorization.
+
+**Recursive relation lookup no longer scans the model array.** The private selection compiler uses the generated `DATABASE_MODELS_BY_NAME` map for root-type and related-model lookup instead of calling `DATABASE_MODELS.find(...)` at every traversal step. This is a generated-code performance improvement with no migration action of its own.
+
+### Removed
+
+**`@crudAuth` is no longer supported.** The `crud`, `sdk`, `models`, and `model-extension` generators inspect the Prisma DMMF and fail before writing output if any model still carries the annotation. The error lists every annotated model so a stale policy cannot appear to have been accepted while actually being ignored.
+
+The programmatic exports `parseCrudAuth`, `getCrudAuthForModel`, `getGuardForAuthLevel`, and `getAccessLevelDecoratorForAuthLevel` have also been removed.
+
+### Upgrading
+
+1. Inventory every `@crudAuth` declaration and the client workflows that use its lower-privilege operations.
+2. Replace those operations with additive custom resolvers. Give them purpose-built inputs, an explicit access decorator/guard, authenticated user or tenant scope, and explicit Prisma `where` and `select` clauses.
+3. Keep generated DTOs, filters, `ApiCrudDataAccessService`, and its recursive selection compiler out of user-facing resolver libraries. If administrative composition is intentional, isolate it in an admin-only library.
+4. Remove all `@crudAuth` annotations and retire the consumer's old exported `createSelect`/viewer-context traversal machinery.
+5. Upgrade and run the complete generation pipeline:
+
+```shell
+pnpm add -E @nestledjs/generators@3.0.0
+pnpm db-update
+```
+
+Regenerate the runtime GraphQL schema and SDK, then verify that every class under `libs/api/generated-crud/feature/` has `@AdminOnly()` and `@UseGuards(GqlAuthAdminGuard)`. Exercise each replacement application resolver with allowed, cross-tenant, unauthenticated, and over-posted input cases before deploying.
+
+{% callout title="This release hardens a boundary; it does not imply a new secret leak" %}
+Unlike the 1.1.3 and 1.1.5 fixes below, 3.0.0 does not by itself require credential rotation. It intentionally narrows an overly broad customization surface. Investigate separately if your old `@crudAuth` policy exposed generated operations more widely than your application intended.
+{% /callout %}
+
+---
+
 ## 2.0.0 {% .no-toc %}
 
 **Major — breaking.** Changes how generated CRUD resolvers are registered, and removes the per-model shells the `custom` generator used to emit.

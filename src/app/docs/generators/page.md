@@ -8,7 +8,7 @@ nextjs:
 
 `@nestledjs/generators` contains the generators you use during normal development. They handle workspace setup, code generation from your Prisma schema, and additive scaffolding for new models.
 
-The current 2.x package exposes six generators:
+The current release is 3.0.3 and exposes six generators:
 
 - `workspace-setup`
 - `crud`
@@ -18,7 +18,7 @@ The current 2.x package exposes six generators:
 - `sdk`
 
 {% callout title="This page documents the latest release" %}
-Nestled keeps one always-current documentation set rather than a separate copy per version. Anything whose behavior depends on which version you are on carries an inline badge — {% version added="2.0.0" /%} or {% version changed="2.0.0" /%} — so you can tell at a glance whether a section applies to your workspace. Full history lives in the [changelog](/docs/generators-changelog).
+Nestled keeps one always-current documentation set rather than a separate copy per version. Anything whose behavior depends on which version you are on carries an inline badge — {% version added="2.0.0" /%} or {% version changed="3.0.0" /%} — so you can tell at a glance whether a section applies to your workspace. Full history lives in the [changelog](/docs/generators-changelog).
 {% /callout %}
 
 {% callout title="You rarely run these individually" %}
@@ -27,10 +27,14 @@ In day-to-day development, `pnpm db-update` runs the schema-driven generators au
 `model-extension` is intentionally not part of that pipeline — you run it by hand when you want a resolver module for a specific model.
 {% /callout %}
 
-{% callout type="warning" title="Upgrading to 2.0.0 — action required" %}
-2.0.0 changes how generated resolvers are registered and removes the per-model shells the `custom` generator used to emit. Upgrading is not a drop-in bump: the template wiring and your custom resolvers have to move together, in order.
+{% callout type="warning" title="Upgrading to 3.x — security migration required" %}
+3.0.0 makes every generated CRUD operation admin-only and removes `@crudAuth`. Before deleting the old annotations, replace every user, public, or custom-level operation with an explicit application resolver using a purpose-built input and a user- or tenant-scoped query.
 
-Follow the [Migrating to 2.0 guide](/docs/migrating-to-2) before running `pnpm db-update`.
+Follow the [Migrating to 3.0 guide](/docs/migrating-to-3) before running `pnpm db-update`. Generator 3 rejects a schema that still contains `@crudAuth` rather than silently ignoring it.
+{% /callout %}
+
+{% callout title="Coming from 1.1.x?" %}
+2.0.0 also has an ordered migration: it changes how generated resolvers are registered and removes the per-model shells the `custom` generator used to emit. Complete [Migrating to 2.0](/docs/migrating-to-2) before the 3.0 security migration.
 {% /callout %}
 
 {% callout type="warning" title="Security fixes in 1.1.3 and 1.1.5 — audit required for deployed workspaces" %}
@@ -76,7 +80,7 @@ _Part of `pnpm db-update`_
 nx g @nestledjs/generators:crud
 ```
 
-Reads your Prisma schema via DMMF and generates a complete CRUD API:
+Reads your Prisma schema via DMMF and generates a complete admin CRUD API:
 
 - **Data access module** at `libs/api/generated-crud/data-access/` — model metadata and pagination config
 - **Feature module** at `libs/api/generated-crud/feature/` — one resolver per model with full CRUD operations
@@ -88,7 +92,40 @@ For each model, generates:
 - `{models}Count` query
 - `create{Model}`, `update{Model}`, `delete{Model}` mutations
 
-Reads `@crudAuth` comments from Prisma models to apply auth guards. Handles BigInt IDs with the `GraphQLBigInt` scalar.
+Handles BigInt IDs with the `GraphQLBigInt` scalar. List operations use typed, bounded-depth filters that omit fields marked `@graphqlOmit`.
+
+### Admin-only security boundary {% .no-toc %}
+
+{% version changed="3.0.0" /%}
+
+Every generated resolver class declares both `@AdminOnly()` and `@UseGuards(GqlAuthAdminGuard)`. The guard cannot be lowered per model or per operation: `@crudAuth` was removed in 3.0.0, and the `crud`, `sdk`, `models`, and `model-extension` generators fail before writing if any model still carries it.
+
+Generated create/update inputs, administrative filters, and recursive relation selection exist for the admin data browser. Do not reuse them as a user-facing API. Application workflows belong in additive custom resolvers with:
+
+- purpose-built inputs containing only allowed fields;
+- an explicit access decorator and guard;
+- user or tenant scope derived from authenticated server context; and
+- explicit Prisma `where` and `select` clauses.
+
+The recursive GraphQL-to-Prisma selection compiler is now a private, non-exported implementation detail inside the generated `ApiCrudDataAccessService`. It resolves relation metadata through the generated `DATABASE_MODELS_BY_NAME` map instead of repeatedly scanning the model array. See [Migrating to 3.0](/docs/migrating-to-3) for replacing lower-privilege operations and removing the old `createSelect`/viewer-context machinery.
+
+### Typed admin filters {% .no-toc %}
+
+{% version changed="3.0.1" /%}
+
+Filter fields and operators are derived from the visible Prisma model:
+
+- all supported scalar filters provide `equals`, `in`, and `not`;
+- strings also provide `contains`, `startsWith`, and `endsWith`;
+- numbers and dates also provide `lt`, `lte`, `gt`, and `gte`;
+- list relations provide `some`, `every`, and `none`; and
+- to-one relations provide `is` and `isNot`, including null checks, while retaining the direct nested shorthand from 1.1.5.
+
+`@graphqlOmit` fields never enter the filter types. `Json` columns and scalar lists remain unfilterable.
+
+`AND`, `OR`, and `NOT` are bounded rather than self-referencing: each relation or logical operator points only to the next generated input depth. The default `--filterDepth` is 3, and the deepest level contains scalars only. Generated data access normalizes the compatible to-one shorthand into Prisma's relation-filter form and rejects a contradictory `is: null` plus direct predicate before it reaches Prisma.
+
+3.0.2 also makes this normalization compile when `noPropertyAccessFromIndexSignature` is enabled. See the [3.0.1](/docs/generators-changelog#3-0-1) and [3.0.2](/docs/generators-changelog#3-0-2) entries for patch-specific upgrade notes.
 
 ### How generated resolvers get registered {% .no-toc %}
 
@@ -168,6 +205,8 @@ nx g @nestledjs/generators:model-extension Post
 
 Scaffolds an additive, model-specific resolver module for a single Prisma model. Use it when a model needs behavior beyond generated CRUD — a computed field, a domain-specific mutation, an extra guard.
 
+In 3.0.0, this is also the starting point for any application workflow that used to lower generated CRUD through `@crudAuth`. Define a new, non-colliding GraphQL operation with its own input and explicitly scoped database query; do not inject `ApiCrudDataAccessService` or import generated CRUD inputs into the user-facing module.
+
 This is the deliberate replacement for the blanket per-model shells that `custom` used to emit: you get a module for the models that actually need one, when they need one, instead of a directory of empty classes for every model in the schema.
 
 It writes two files to `libs/api/custom/src/lib/default/{name}/`:
@@ -200,14 +239,17 @@ _Part of `pnpm db-update`_
 nx g @nestledjs/generators:sdk
 ```
 
-Reads your Prisma schema and generates GraphQL operation documents for every model:
+Reads your Prisma schema and maintains the GraphQL client SDK. As of 3.0.3, it has a strict ownership boundary:
 
-- **Fragments** — scalar fields for each model
-- **Queries** — read one, read many, count
-- **Mutations** — create, update, delete
-- **Admin fragments** — includes nested relation IDs and `_count` fields
+- **Generated admin documents** at `libs/shared/sdk/src/__admin/<model>/` — recreated for every visible Prisma model, including fragments, read/count queries, create/update/delete mutations, nested relation IDs, and `_count` fields
+- **Application documents** under `libs/shared/sdk/src/graphql/<feature>/` — preserved exactly; never created or deleted based on Prisma models
+- **Shared SDK source** — updates `database-models.ts`, the core uptime/paging document, SDK exports, and GraphQL Code Generator setup
 
-Also generates `codegen.yml` for GraphQL Code Generator and adds `sdk` / `sdk:watch` scripts.
+Write purpose-built queries, mutations, and fragments under `src/graphql/<feature>/` only after their explicit application resolver exists. Do not copy the generated admin root operations into this tree, and do not add empty `.graphql` placeholders.
+
+{% version changed="3.0.3" note="Public feature documents are fully application-owned." /%}
+
+The generator adds `sdk` / `sdk:watch` scripts. It creates `codegen.yml` when missing and preserves an existing file unless you opt into replacing it.
 
 **Options**: `--forceCodegen` (default: false) — overwrite `codegen.yml` even if it exists
 
