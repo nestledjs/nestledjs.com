@@ -69,7 +69,7 @@ This is the most important concept in Nestled. There are two types of code in yo
 
 These files are completely regenerated every time you run `pnpm db-update`. Never edit them — your changes will be lost.
 
-**`libs/api/generated-crud/`** — CRUD resolvers for every Prisma model (findOne, findMany, create, update, delete, count), input/output DTOs, auth guards based on `@crudAuth` comments, and database model metadata. This drives the admin tool's data management.
+**`libs/api/generated-crud/`** — Admin-only CRUD resolvers for every Prisma model (findOne, findMany, create, update, delete, count), input/output DTOs, typed administrative filters, and database model metadata. Every resolver class is protected by `@AdminOnly()` and `GqlAuthAdminGuard`. This drives the admin tool's data management.
 
 **`libs/shared/sdk/src/__admin/`** — Admin GraphQL fragments, queries, and mutations for every model. Always overwritten to stay in exact sync with your schema. These power the built-in admin dashboard.
 
@@ -79,13 +79,13 @@ These files are completely regenerated every time you run `pnpm db-update`. Neve
 
 ### Custom code (yours, never overwritten)
 
-These files are generated once as empty templates and then **never touched again** by the generators. This is where you build your application.
+The generators preserve these files rather than replacing them. This is where you build your application.
 
 ### `libs/api/custom/` — your API logic
 
 The custom library has three folders, each with a distinct purpose:
 
-**`custom/src/lib/default/`** — One module per Prisma model, organized by model name. Each contains a service, resolver, and module file. If your schema has an `Invoice` model, all API logic directly related to invoices goes in `default/invoice/`. On first generation, these extend the admin CRUD so the admin tool works immediately. Your job is to write your own user-facing resolvers and business logic here. Everything your end users interact with — including logged-in admin users using the actual app (as opposed to the admin tool) — should be custom-written in these modules.
+**`custom/src/lib/default/`** — Additive, model-specific resolver modules you create on demand. If your `Invoice` model needs application behavior, run `nx g @nestledjs/generators:model-extension Invoice`, then define purpose-built operations under `default/invoice/`. These modules do not extend or compose generated admin CRUD. Everything your end users interact with — including logged-in administrators using the application rather than the admin tool — should use explicit operations here or in a plugin.
 
 **`custom/src/lib/plugins/`** — Feature modules for cross-cutting concerns that span multiple models or handle complex features. Auth touches users, sessions, tokens, and emails — so it's a plugin, not a default module. The template includes:
 
@@ -117,14 +117,14 @@ When you need to integrate with a new external API (HubSpot, a CRM, a payment pr
 
 ### `libs/shared/sdk/src/graphql/` — your frontend queries
 
-User-facing GraphQL fragments, queries, and mutations. Generated once as empty templates for each model. You write your own queries here for your frontend — don't rely on the admin operations for production user-facing features.
+Application-owned GraphQL fragments, queries, and mutations. As of generators 3.0.3, the SDK generator never creates or deletes per-model files here. Add real documents by feature or model after the corresponding explicit resolver exists; don't rely on generated admin operations for production user-facing features, and don't create empty `.graphql` placeholders.
 
 {% callout title="The golden rule" %}
-Never edit generated code — it gets overwritten. All your business logic goes in `custom/` (API) and `sdk/src/graphql/` (frontend). These are only ever additive: when you add a new model, the generators create new empty templates but never touch your existing files. If you delete a model from your schema, you need to manually remove its custom and SDK folders.
+Never edit generated code — it gets overwritten. All your business logic goes in `custom/` (API) and `sdk/src/graphql/` (frontend). The custom generator preserves your extensions, and the SDK generator preserves existing user-facing documents. When a model needs application behavior, add its custom module deliberately with `model-extension`. If you delete a model, manually review its preserved custom module and SDK folder.
 {% /callout %}
 
 {% callout title="Think about your schema first" %}
-Because custom code is never overwritten, the more thought you put into your Prisma schema upfront, the less cleanup you'll need later. Adding models is effortless — the generators create everything for you. Removing models means manually deleting the custom API module and SDK folder for that model.
+Because custom code is preserved, the more thought you put into your Prisma schema and application operations upfront, the less cleanup you'll need later. Adding a model automatically updates the admin surface; user-facing behavior stays an explicit design choice.
 {% /callout %}
 
 ---
@@ -139,7 +139,7 @@ When you run `pnpm db-update`, five things happen:
 
 ### Step 2: Generate CRUD resolvers
 
-`nx g @nestledjs/generators:crud` reads your Prisma schema and generates a complete GraphQL CRUD API for every model. For each model, you get:
+`nx g @nestledjs/generators:crud` reads your Prisma schema and generates a complete admin GraphQL CRUD API for every model. For each model, you get:
 
 - `{model}` query — read one by ID
 - `{models}` query — read many with pagination
@@ -148,23 +148,9 @@ When you run `pnpm db-update`, five things happen:
 - `update{Model}` mutation
 - `delete{Model}` mutation
 
-Auth guards are applied automatically based on `@crudAuth` comments in your schema:
+As of generators 3.0.0, every resolver class receives `@AdminOnly()` and `@UseGuards(GqlAuthAdminGuard)`. There is no model- or operation-level override. A schema that still contains the removed `@crudAuth` annotation fails generation before files are written.
 
-```prisma
-/// @crudAuth: { "readOne": "user", "readMany": "user", "create": "admin", "update": "user", "delete": "admin" }
-model UserPreference {
-  id     String @id @default(uuid())
-  userId String
-  key    String
-  value  String
-  @@unique([userId, key])
-}
-```
-
-Auth levels:
-
-- **`"admin"`** (default) — Requires `GqlAuthAdminGuard` (super admin only)
-- **`"user"`** — Requires `GqlAuthGuard` (any authenticated user)
+This is a deliberate boundary: broad generated inputs, filters, and recursive relation selection power the admin data browser. User-facing operations must instead use custom resolvers with purpose-built inputs, explicit guards, server-derived user or tenant scope, and explicit Prisma `where`/`select` clauses. See [Migrating to 3.0](/docs/migrating-to-3).
 
 ### Step 3: Generate TypeScript models
 
@@ -178,14 +164,16 @@ Prisma `Json` fields are emitted as `GraphQLJSON`, so object, array, and scalar 
 
 As of generators 2.0.0 this step no longer emits a service + resolver + module shell for every Prisma model. Generated CRUD registers itself through `ApiGeneratedCrudFeatureModule`, so those shells served no purpose. When a specific model needs custom behavior, scaffold it deliberately with `nx g @nestledjs/generators:model-extension <Model>`. See [Migrating to 2.0](/docs/migrating-to-2) if you are coming from 1.1.x.
 
+In generators 3.0.0, these additive modules are also the required home for operations that ordinary users, tenants, or the public can call. They must not import generated CRUD inputs, filters, `ApiCrudDataAccessService`, or its private administrative selection compiler.
+
 ### Step 5: Generate the GraphQL SDK
 
-`nx g @nestledjs/generators:sdk` generates two sets of GraphQL operations:
+`nx g @nestledjs/generators:sdk` maintains two GraphQL operation source areas:
 
 - **Admin SDK** (`sdk/src/__admin/`) — Overwritten every time. Complete fragments, queries, and mutations for every model with nested relation IDs and count fields. Powers the admin dashboard.
-- **User SDK** (`sdk/src/graphql/`) — Generated once as empty templates. Created for new models only, never overwrites existing files. This is where you write your own frontend queries.
+- **Application SDK** (`sdk/src/graphql/<feature>/`) — Fully application-owned. The generator preserves feature and per-model documents and does not seed generic CRUD documents for new models. Organize purpose-built operations by feature or model.
 
-Both sets are processed by GraphQL Code Generator to produce `libs/shared/sdk/src/generated/graphql.ts` — fully typed TypeScript operations for Apollo Client.
+Both sets are processed by GraphQL Code Generator to produce `libs/shared/sdk/src/generated/graphql.ts` — fully typed TypeScript operations for Apollo Client. The SDK generator still maintains the shared core uptime/paging document and SDK configuration.
 
 ---
 

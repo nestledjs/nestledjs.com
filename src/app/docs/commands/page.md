@@ -31,10 +31,10 @@ pnpm db-update
 Under the hood, it runs five steps in sequence:
 
 1. **`pnpm prisma:generate`** — Regenerates the Prisma client from your current schema
-2. **`nx g @nestledjs/generators:crud`** — Reads your Prisma schema and regenerates CRUD resolvers for every model, with auth guards applied based on `@crudAuth` comments
+2. **`nx g @nestledjs/generators:crud`** — Reads your Prisma schema and regenerates admin-only CRUD resolvers for every model
 3. **`nx g @nestledjs/generators:models`** — Generates TypeScript and GraphQL models from the Prisma DMMF (Data Model Meta Format)
 4. **`nx g @nestledjs/generators:custom`** — Maintains the custom API library and its barrel files (never overwrites existing custom code)
-5. **`nx g @nestledjs/generators:sdk`** — Generates GraphQL fragments, queries, and mutations for every model, then runs codegen to produce typed TypeScript operations
+5. **`nx g @nestledjs/generators:sdk`** — Regenerates admin CRUD documents, preserves application-owned GraphQL documents, and maintains the SDK source/configuration
 
 After running `db-update`, you'll typically also want to push your schema changes to the database:
 
@@ -44,6 +44,10 @@ pnpm prisma db push
 
 {% callout title="This is the workflow" %}
 Design your Prisma schema → `pnpm db-update` → `pnpm prisma db push` → your app is updated. That's it. The more thought you put into your schema, the less manual code you write.
+{% /callout %}
+
+{% callout type="warning" title="Generators 3 rejects @crudAuth" %}
+Generated CRUD is always admin-only. Before upgrading a 2.x workspace, follow [Migrating to 3.0](/docs/migrating-to-3) to replace lower-privilege generated operations with explicit application resolvers, then remove every `@crudAuth` annotation.
 {% /callout %}
 
 ---
@@ -87,11 +91,11 @@ During development, `pnpm prisma db push` is the fastest way to apply schema cha
 | Command                                            | Description                                                      |
 | -------------------------------------------------- | ---------------------------------------------------------------- |
 | `pnpm db-update`                                   | Full pipeline: Prisma client + CRUD + models + custom + SDK      |
-| `nx g @nestledjs/generators:crud`                  | Regenerate CRUD resolvers from Prisma schema                     |
+| `nx g @nestledjs/generators:crud`                  | Regenerate admin-only CRUD resolvers from Prisma schema          |
 | `nx g @nestledjs/generators:models`                | Generate TypeScript and GraphQL models from Prisma schema        |
 | `nx g @nestledjs/generators:custom`                | Maintain the custom API library and its barrels                  |
 | `nx g @nestledjs/generators:model-extension Model` | Scaffold a resolver module for one model (2.0.0+, run on demand) |
-| `nx g @nestledjs/generators:sdk`                   | Generate GraphQL operations and typed SDK output                 |
+| `nx g @nestledjs/generators:sdk`                   | Regenerate admin documents and maintain SDK source/config        |
 | `pnpm sdk`                                         | Run GraphQL codegen once                                         |
 | `pnpm sdk watch`                                   | Run GraphQL codegen in watch mode                                |
 

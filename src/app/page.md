@@ -75,7 +75,7 @@ pnpm sdk watch     # Auto-regenerate types on changes
 Visit `http://localhost:4200` and register your first account — the first user to register automatically becomes the super admin with full access to the admin dashboard and all management features.
 
 {% callout title="What just happened?" %}
-With one command, `pnpm db-update` regenerated the Prisma client, generated CRUD resolvers for every model, built GraphQL models from your schema, created custom module boilerplate, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
+With one command, `pnpm db-update` regenerated the Prisma client, generated admin-only CRUD resolvers for every model, built GraphQL models from your schema, maintained the custom API library, and generated a typed SDK for your frontend. [Learn more about how this works →](/docs/architecture)
 {% /callout %}
 
 ---
@@ -94,7 +94,7 @@ Multi-tenant architecture where users belong to organizations through membership
 
 ### Role-based access control
 
-Roles and permissions model with guard-based authorization. Generated CRUD endpoints use `@crudAuth` comments in your Prisma schema to declaratively set access levels — no manual guard wiring needed.
+Roles and permissions model with guard-based authorization. Generated CRUD is always super-admin-only; user-facing operations declare their own guards and enforce application-specific user or tenant scope.
 
 ### Stripe billing
 
@@ -102,7 +102,7 @@ Full Stripe integration with subscription management, webhook handling, product 
 
 ### Generated GraphQL API
 
-Every model in your Prisma schema gets a complete CRUD API — queries for reading one, reading many with pagination, and counting records, plus mutations for creating, updating, and deleting. All with appropriate auth guards applied automatically.
+Every model in your Prisma schema gets a complete admin CRUD API — queries for reading one, reading many with pagination, and counting records, plus mutations for creating, updating, and deleting. Every generated resolver is protected by the admin guard.
 
 ### Admin dashboard
 

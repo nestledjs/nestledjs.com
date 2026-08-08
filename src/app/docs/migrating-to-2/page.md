@@ -6,7 +6,7 @@ nextjs:
     description: Step-by-step upgrade from @nestledjs/generators 1.1.x to 2.0.0, covering the change in how generated CRUD resolvers are registered.
 ---
 
-`@nestledjs/generators` 2.0.0 changes how generated CRUD resolvers reach your GraphQL schema. This is the only breaking release in the package's history, and it is not a drop-in bump — the template wiring and your custom resolvers have to move together.
+`@nestledjs/generators` 2.0.0 changes how generated CRUD resolvers reach your GraphQL schema. It was the first breaking release in the active generator line, and it is not a drop-in bump — the template wiring and your custom resolvers have to move together.
 
 This page is the ordered checklist. For the release notes themselves, see the [changelog](/docs/generators-changelog#2-0-0).
 
@@ -94,7 +94,7 @@ pnpm db-update
 Then check the result before deploying:
 
 - **Root fields** — your GraphQL schema should have exactly one of each generated query and mutation. Duplicates mean an inheriting resolver is still registered; go back to step 2.
-- **Authorization guards** — confirm each operation still carries the access level you expect. Generated operations declare their own level as of 1.1.6 (`@AdminOnly()` / `@Authenticated()` / `@Public()`), resolved from `@crudAuth`.
+- **Authorization guards** — if you are stopping on 2.0.0, confirm each operation still carries the access level resolved from `@crudAuth`. Generators 3.0.0 supersedes this behavior by making every generated operation admin-only; continue with [Migrating to 3.0](/docs/migrating-to-3).
 
 ---
 
