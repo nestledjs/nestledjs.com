@@ -20,6 +20,23 @@
 | `deploy_command` | `none` — site deploys from develop — merging IS the deploy                                                                                                                                                                                |
 | `merge_command`  | `gh pr merge <prNumber> --repo nestledjs/nestledjs.com --merge --delete-branch`                                                                                                                                                           |
 
+## Host — Railway (for Deploy Fixer mapping)
+
+| Field                      | Value                                  |
+| -------------------------- | -------------------------------------- |
+| `host`                     | `railway`                              |
+| `railway_project_name`     | `nestledjs.com`                        |
+| `railway_project_id`       | `576400f5-7287-405c-a769-59e171d97c00` |
+| `railway_environment_name` | `production`                           |
+| `railway_environment_id`   | `e4ed23b3-6524-485c-a592-3d00ce6fdcaf` |
+
+Git-backed services in this project — Deploy Fixer checks **each** one's latest deployment.
+Managed plugins (Postgres, Redis) are not git-backed and are not scanned.
+
+| Service         | ID                                     |
+| --------------- | -------------------------------------- |
+| `nestledjs.com` | `347938c8-608f-41e0-85b0-624d56a48340` |
+
 ## Quality Gates
 
 No SonarCloud on this repo — quality gates are the Intelligence Check plus canonical checks only.
