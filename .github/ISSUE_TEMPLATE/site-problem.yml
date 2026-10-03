@@ -1,0 +1,26 @@
+name: Site problem
+description: Something on this website is broken or wrong
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+  - type: checkboxes
+    id: public
+    attributes:
+      label: This repository is public
+      options:
+        - label: I removed project, client, organization and site names, private URLs, credentials and private repository links.
+          required: true

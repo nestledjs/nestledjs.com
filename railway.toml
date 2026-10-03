@@ -1,0 +1,15 @@
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "always"
+
+[[services]]
+name = "nestledjs-docs"
+
+[services.variables]
+NODE_ENV = "production"
+
+[services.build]
+# Disable automatic cache mounting for TypeScript build info
+watchPatterns = ["/app/src/**/*"]

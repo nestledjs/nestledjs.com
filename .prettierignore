@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+*.log
+.DS_Store
+.env*
+public/
+*.lock
+package-lock.json
+pnpm-lock.yaml
