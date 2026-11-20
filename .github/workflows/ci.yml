@@ -104,6 +104,14 @@ jobs:
           pnpm start &
           sleep 10
 
+      # Lychee only follows page links, so it misses <link rel="icon"> targets
+      # and the manifest. Fail the job if any of them is not served.
+      - name: Check icon and manifest URLs
+        run: |
+          for path in icon-192.png icon-512.png apple-icon.png favicon.ico manifest.webmanifest; do
+            curl -fsS --retry 5 --retry-connrefused -o /dev/null "http://localhost:3000/$path"
+          done
+
       - name: Check internal links
         uses: lycheeverse/lychee-action@v1
         with:
