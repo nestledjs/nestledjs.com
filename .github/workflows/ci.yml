@@ -109,7 +109,15 @@ jobs:
       - name: Check icon and manifest URLs
         run: |
           for path in icon-192.png icon-512.png apple-icon.png favicon.ico manifest.webmanifest; do
-            curl -fsS --retry 5 --retry-connrefused -o /dev/null "http://localhost:3000/$path"
+            status=$(curl -sS --retry 5 --retry-connrefused -o /dev/null -w '%{http_code}' "http://localhost:3000/$path")
+            echo "/$path -> $status"
+            case "$status" in
+              2??) ;;
+              *)
+                echo "::error::/$path returned HTTP $status, expected 2xx"
+                exit 1
+                ;;
+            esac
           done
 
       - name: Check internal links
